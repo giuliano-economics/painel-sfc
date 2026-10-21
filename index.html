@@ -1,0 +1,1903 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Painel SFC Brasil</title>
+<style>:root {
+  --bg: #f7f6f2;
+  --surface: #ffffff;
+  --text: #1c1b19;
+  --muted: #5d5a54;
+  --border: #d9d6cc;
+  --accent: #1f5f8b;
+  --accent-text: #ffffff;
+  --gov: #b4412f;
+  --priv: #1f7a5c;
+  --ext: #3a5fb0;
+  --sim: #8a5a00;
+  --sfcbr: #1f5f8b;
+  --base: #8a877e;
+  --warn-bg: #fff3d6;
+  --warn-text: #5c3d00;
+  --err-bg: #fde4e0;
+  --err-text: #7a1d10;
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14130f;
+    --surface: #1f1d19;
+    --text: #f1efe8;
+    --muted: #b3afa3;
+    --border: #3a372f;
+    --accent: #6cb4e4;
+    --accent-text: #0e1a22;
+    --gov: #ee8572;
+    --priv: #5ccaa0;
+    --ext: #8eaaf0;
+    --sim: #e0b25a;
+    --sfcbr: #6cb4e4;
+    --base: #8f8c82;
+    --warn-bg: #3b2f10;
+    --warn-text: #ffe2a0;
+    --err-bg: #43201b;
+    --err-text: #ffc9c0;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14130f;
+  --surface: #1f1d19;
+  --text: #f1efe8;
+  --muted: #b3afa3;
+  --border: #3a372f;
+  --accent: #6cb4e4;
+  --accent-text: #0e1a22;
+  --gov: #ee8572;
+  --priv: #5ccaa0;
+  --ext: #8eaaf0;
+  --sim: #e0b25a;
+  --sfcbr: #6cb4e4;
+  --base: #8f8c82;
+  --warn-bg: #3b2f10;
+  --warn-text: #ffe2a0;
+  --err-bg: #43201b;
+  --err-text: #ffc9c0;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+.topo, .rodape, main { padding-left: 16px; padding-right: 16px; max-width: 720px; margin: 0 auto; }
+.topo { padding-top: 14px; }
+.topo h1 { margin: 0; font-size: 1.35rem; }
+.sub { margin: 2px 0 8px; color: var(--muted); font-size: 0.9rem; }
+.rodape { padding-top: 16px; padding-bottom: 28px; color: var(--muted); font-size: 0.85rem; }
+.rodape a { color: var(--accent); }
+main > * { min-width: 0; }
+h3 { margin: 0 0 8px; font-size: 1.05rem; }
+
+/* seletor de modelo e abas */
+.modos { display: flex; gap: 6px; margin: 4px 0 10px; }
+.seg, .aba {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.92rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.seg.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+.abas { display: flex; gap: 4px; margin-bottom: 10px; border-bottom: 2px solid var(--border); }
+.aba { border: 0; border-radius: 8px 8px 0 0; background: transparent; }
+.aba.on { background: var(--surface); font-weight: 600; box-shadow: inset 0 -3px 0 var(--accent); }
+
+/* blocos e controles */
+.bloco {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.ctl { margin: 6px 0 12px; }
+.ctl label, .bloco > label { display: flex; justify-content: space-between; gap: 8px; font-size: 0.92rem; }
+output { font-variant-numeric: tabular-nums; font-weight: 600; }
+input[type="range"] { width: 100%; min-height: 32px; accent-color: var(--accent); }
+.check { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 0.92rem; }
+.check input { width: 20px; height: 20px; }
+.botao {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.botao.grande { width: 100%; margin-bottom: 6px; background: var(--accent); color: var(--accent-text); }
+.botao.grande[aria-pressed="false"] { background: transparent; color: var(--accent); }
+.nota { color: var(--muted); font-size: 0.85rem; margin: 6px 0; }
+.aviso { padding: 10px 12px; border-radius: var(--radius); margin: 0 0 8px; font-size: 0.9rem; }
+.aviso.atencao { background: var(--warn-bg); color: var(--warn-text); }
+.aviso.erro { background: var(--err-bg); color: var(--err-text); }
+
+/* diagrama */
+.no { cursor: pointer; }
+.no rect { fill: var(--surface); stroke: var(--border); stroke-width: 1.5; }
+.no.sel rect { stroke: var(--accent); stroke-width: 3; }
+.no:focus { outline: none; }
+.no:focus-visible rect { stroke: var(--accent); stroke-width: 3; stroke-dasharray: 4 3; }
+.nome { font-size: 14px; font-weight: 600; fill: var(--text); }
+.saldo { font-size: 12px; fill: var(--muted); }
+.seta { stroke: var(--muted); stroke-width: 1.2; }
+.ponta { fill: var(--muted); }
+.rot { font-size: 10.5px; fill: var(--muted); }
+
+/* gráficos */
+.grafico { margin: 0 0 12px; padding: 10px 8px 6px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+figcaption { font-weight: 600; font-size: 0.95rem; padding: 0 4px 4px; }
+.grade { stroke: var(--border); stroke-width: 1; }
+.zero { stroke: var(--muted); stroke-width: 1; }
+.ytick, .xtick, .eixo { fill: var(--muted); font-size: 10px; }
+.serie { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linejoin: round; }
+.marca { stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.tracejado { stroke-dasharray: 6 4; }
+.c-gov { color: var(--gov); }
+.c-priv { color: var(--priv); }
+.c-ext { color: var(--ext); }
+.s-sim { color: var(--sim); }
+.s-sfcbr { color: var(--sfcbr); }
+.s-base { color: var(--base); }
+.legenda { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 4px 4px 2px; padding: 0; font-size: 0.82rem; }
+.legenda li { display: flex; align-items: center; gap: 6px; }
+.sw { display: inline-block; width: 18px; height: 0; border-top: 3px solid currentColor; }
+.sw.tracejado { border-top-style: dashed; }
+
+/* matriz */
+.tabela { overflow-x: auto; margin-top: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.8rem; }
+caption { text-align: left; font-weight: 600; padding-bottom: 4px; }
+th, td { border-bottom: 1px solid var(--border); padding: 4px 6px; text-align: right; }
+th[scope="row"], thead th:first-child { text-align: left; }
+thead th { font-weight: 600; font-size: 0.74rem; }
+
+/* roteiro guiado, listas e abas extras */
+.roteiro { background: var(--surface); border: 1px solid var(--accent); border-radius: var(--radius); padding: 10px 12px; margin: 4px 0 10px; }
+.roteiro p { margin: 4px 0; font-size: 0.92rem; }
+.roteiro h3 { margin: 2px 0 4px; }
+.roteiro .passo { color: var(--muted); font-size: 0.8rem; margin: 0; }
+.roteiro .nav { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+.botao:disabled { opacity: 0.4; cursor: default; }
+.link { background: none; border: 0; color: var(--accent); font: inherit; text-decoration: underline; min-height: 44px; padding: 0 8px; cursor: pointer; }
+.lista { margin: 4px 0; padding-left: 20px; }
+.lista li { margin-bottom: 6px; }
+.aba { font-size: 0.82rem; padding: 6px 2px; }
+.bloco > label.check, label.check { justify-content: flex-start; }
+.soma { margin: 6px 0 0; font-size: 0.85rem; color: var(--muted); text-align: center; }
+
+select { width: 100%; min-height: 44px; padding: 6px 8px; font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+
+/* folha "Metodologia" */
+.barra { display: flex; justify-content: flex-end; margin: 4px 0 6px; }
+.sem-rolagem { overflow: hidden; }
+.folha { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 20; background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.folha-topo { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.folha-topo h2 { margin: 0; font-size: 1.15rem; }
+.folha-corpo { max-width: 720px; margin: 0 auto; padding: 12px 16px 48px; }
+.metodo { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 10px; }
+.metodo p { margin: 6px 0; font-size: 0.95rem; }
+.metodo h4 { margin: 12px 0 4px; font-size: 0.92rem; color: var(--muted); }
+.metodo-modelo { margin: 18px 0 8px; font-size: 1.1rem; color: var(--accent); }
+.eqs { list-style: none; margin: 0; padding: 0; }
+.eqs li { margin: 0 0 10px; }
+code { display: inline-block; max-width: 100%; font: 0.85rem/1.4 ui-monospace, Menlo, Consolas, monospace; background: var(--bg); border: 1px solid var(--border); padding: 2px 6px; border-radius: 6px; overflow-wrap: anywhere; }
+.expl { display: block; margin-top: 2px; color: var(--muted); font-size: 0.88rem; }
+.legenda-vars { margin-top: 10px; font-size: 0.9rem; }
+.legenda-vars summary { cursor: pointer; min-height: 32px; font-weight: 600; }
+.legenda-vars dl { margin: 6px 0 0; }
+.legenda-vars dt { display: inline; font-weight: 600; font-family: ui-monospace, Menlo, Consolas, monospace; }
+.legenda-vars dd { display: inline; margin: 0; }
+.legenda-vars dd::after { content: ""; display: block; margin-bottom: 4px; }
+
+/* botões que abrem as folhas */
+.barra { flex-wrap: wrap; gap: 6px; justify-content: flex-start; }
+.botao.pequeno { min-height: 40px; padding: 4px 10px; font-size: 0.88rem; }
+
+/* barra de choque fixa no topo, com mini gráfico do produto */
+.fixo { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 4px 0 6px; }
+.fixo-card { background: var(--surface); border: 1px solid var(--accent); border-radius: var(--radius); padding: 8px 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); }
+.fixo-topo { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.fixo-topo .link { min-height: 36px; }
+.fixo-linha { display: flex; gap: 8px; align-items: stretch; margin: 2px 0 4px; }
+.fixo-linha select { flex: 1 1 0; min-width: 0; min-height: 40px; }
+.fixo-linha .botao { flex: 0 0 auto; min-height: 40px; padding: 4px 10px; font-size: 0.85rem; }
+.fixo .ctl { margin: 2px 0 4px; }
+.fixo .ctl label { font-size: 0.85rem; }
+.fixo input[type="range"] { min-height: 28px; }
+.mini .legenda { margin: 0 4px; font-size: 0.75rem; }
+.mini svg { display: block; }
+
+.fixo-linha .link.curto { flex: 0 0 auto; min-width: 36px; padding: 0 6px; text-decoration: none; font-size: 1rem; }
+.mini .nota { display: none; }
+</style>
+</head>
+<body>
+<header class="topo">
+  <h1>Painel SFC</h1>
+  <p class="sub">Seminário PPGE&amp;D/UFSM · 30/10/2026</p>
+</header>
+<main id="app">
+  <p id="carregando" class="aviso atencao" role="status">Carregando o painel… Se esta mensagem não sumir, o aplicativo que abriu este arquivo bloqueou o JavaScript (é o que o iPhone faz com arquivos baixados). Abra o painel pelo endereço, no Safari ou no Chrome: <a href="https://giuliano-economics.github.io/painel-sfc/">giuliano-economics.github.io/painel-sfc</a></p>
+  <noscript><p class="aviso erro">Este painel precisa de JavaScript para rodar a simulação. Abra o endereço giuliano-economics.github.io/painel-sfc no navegador.</p></noscript>
+</main>
+<script>
+window.addEventListener('error', function (e) {
+  var c = document.getElementById('carregando');
+  if (c) c.textContent = 'Não foi possível iniciar o painel (' + e.message + '). Atualize o navegador ou abra o painel pelo endereço giuliano-economics.github.io/painel-sfc.';
+});
+</script>
+<footer class="rodape">
+  <p>Parâmetros ilustrativos, não ajustados a dados reais.</p>
+  <p><a href="https://giuliano-economics.github.io/painel-sfc/">Endereço do painel</a></p>
+</footer>
+<script>window.SALDOS_REAIS = {"fonte":"BCB/SGS 5727 e 23079","unidade":"% do PIB, acumulado em 12 meses","nota":"Setor privado = resíduo contábil: -(governo + resto do mundo).","serie":[{"periodo":"2002T4","data":"2002-12","governo":-4.42,"privado":2.57,"externo":1.85},{"periodo":"2003T1","data":"2003-03","governo":-5.38,"privado":4.18,"externo":1.2},{"periodo":"2003T2","data":"2003-06","governo":-5.39,"privado":5.29,"externo":0.1},{"periodo":"2003T3","data":"2003-09","governo":-5.97,"privado":6.3,"externo":-0.33},{"periodo":"2003T4","data":"2003-12","governo":-5.18,"privado":5.57,"externo":-0.39},{"periodo":"2004T1","data":"2004-03","governo":-4,"privado":4.59,"externo":-0.59},{"periodo":"2004T2","data":"2004-06","governo":-3.7,"privado":4.62,"externo":-0.92},{"periodo":"2004T3","data":"2004-09","governo":-3.05,"privado":4.21,"externo":-1.16},{"periodo":"2004T4","data":"2004-12","governo":-2.88,"privado":4.22,"externo":-1.34},{"periodo":"2005T1","data":"2005-03","governo":-2.98,"privado":4.4,"externo":-1.42},{"periodo":"2005T2","data":"2005-06","governo":-3.1,"privado":4.4,"externo":-1.3},{"periodo":"2005T3","data":"2005-09","governo":-3.31,"privado":4.58,"externo":-1.27},{"periodo":"2005T4","data":"2005-12","governo":-3.54,"privado":4.85,"externo":-1.31},{"periodo":"2006T1","data":"2006-03","governo":-4.11,"privado":5.2,"externo":-1.09},{"periodo":"2006T2","data":"2006-06","governo":-3.72,"privado":4.61,"externo":-0.89},{"periodo":"2006T3","data":"2006-09","governo":-3.65,"privado":4.66,"externo":-1.01},{"periodo":"2006T4","data":"2006-12","governo":-3.57,"privado":4.54,"externo":-0.97},{"periodo":"2007T1","data":"2007-03","governo":-2.9,"privado":3.71,"externo":-0.81},{"periodo":"2007T2","data":"2007-06","governo":-2.82,"privado":3.64,"externo":-0.82},{"periodo":"2007T3","data":"2007-09","governo":-2.85,"privado":3.1,"externo":-0.25},{"periodo":"2007T4","data":"2007-12","governo":-2.74,"privado":2.54,"externo":0.2},{"periodo":"2008T1","data":"2008-03","governo":-2.21,"privado":1.25,"externo":0.96},{"periodo":"2008T2","data":"2008-06","governo":-2.31,"privado":0.85,"externo":1.46},{"periodo":"2008T3","data":"2008-09","governo":-1.74,"privado":-0.11,"externo":1.85},{"periodo":"2008T4","data":"2008-12","governo":-1.99,"privado":-0.11,"externo":2.1},{"periodo":"2009T1","data":"2009-03","governo":-2.68,"privado":0.82,"externo":1.86},{"periodo":"2009T2","data":"2009-06","governo":-3.02,"privado":1.4,"externo":1.62},{"periodo":"2009T3","data":"2009-09","governo":-4.01,"privado":2.5,"externo":1.51},{"periodo":"2009T4","data":"2009-12","governo":-3.19,"privado":1.44,"externo":1.75},{"periodo":"2010T1","data":"2010-03","governo":-3.2,"privado":0.7,"externo":2.5},{"periodo":"2010T2","data":"2010-06","governo":-3.12,"privado":-0.02,"externo":3.14},{"periodo":"2010T3","data":"2010-09","governo":-2.21,"privado":-1.57,"externo":3.78},{"periodo":"2010T4","data":"2010-12","governo":-2.41,"privado":-1.51,"externo":3.92},{"periodo":"2011T1","data":"2011-03","governo":-2.17,"privado":-1.51,"externo":3.68},{"periodo":"2011T2","data":"2011-06","governo":-2.05,"privado":-1.39,"externo":3.44},{"periodo":"2011T3","data":"2011-09","governo":-2.39,"privado":-0.78,"externo":3.17},{"periodo":"2011T4","data":"2011-12","governo":-2.47,"privado":-0.73,"externo":3.2},{"periodo":"2012T1","data":"2012-03","governo":-2.26,"privado":-0.99,"externo":3.25},{"periodo":"2012T2","data":"2012-06","governo":-2.44,"privado":-1.01,"externo":3.45},{"periodo":"2012T3","data":"2012-09","governo":-2.57,"privado":-0.92,"externo":3.49},{"periodo":"2012T4","data":"2012-12","governo":-2.26,"privado":-1.5,"externo":3.76},{"periodo":"2013T1","data":"2013-03","governo":-2.59,"privado":-1.32,"externo":3.91},{"periodo":"2013T2","data":"2013-06","governo":-2.56,"privado":-1.18,"externo":3.74},{"periodo":"2013T3","data":"2013-09","governo":-3,"privado":-0.94,"externo":3.94},{"periodo":"2013T4","data":"2013-12","governo":-2.96,"privado":-0.62,"externo":3.58},{"periodo":"2014T1","data":"2014-03","governo":-2.9,"privado":-0.89,"externo":3.79},{"periodo":"2014T2","data":"2014-06","governo":-3.27,"privado":-0.64,"externo":3.91},{"periodo":"2014T3","data":"2014-09","governo":-4.39,"privado":0.43,"externo":3.96},{"periodo":"2014T4","data":"2014-12","governo":-5.95,"privado":1.45,"externo":4.5},{"periodo":"2015T1","data":"2015-03","governo":-7.45,"privado":2.95,"externo":4.5},{"periodo":"2015T2","data":"2015-06","governo":-7.83,"privado":3.33,"externo":4.5},{"periodo":"2015T3","data":"2015-09","governo":-9.01,"privado":4.72,"externo":4.29},{"periodo":"2015T4","data":"2015-12","governo":-10.22,"privado":6.69,"externo":3.53},{"periodo":"2016T1","data":"2016-03","governo":-9.59,"privado":6.86,"externo":2.73},{"periodo":"2016T2","data":"2016-06","governo":-9.81,"privado":7.7,"externo":2.11},{"periodo":"2016T3","data":"2016-09","governo":-9.32,"privado":7.57,"externo":1.75},{"periodo":"2016T4","data":"2016-12","governo":-8.98,"privado":7.28,"externo":1.7},{"periodo":"2017T1","data":"2017-03","governo":-9.13,"privado":7.66,"externo":1.47},{"periodo":"2017T2","data":"2017-06","governo":-9.45,"privado":8.19,"externo":1.26},{"periodo":"2017T3","data":"2017-09","governo":-8.73,"privado":7.51,"externo":1.22},{"periodo":"2017T4","data":"2017-12","governo":-7.77,"privado":6.55,"externo":1.22},{"periodo":"2018T1","data":"2018-03","governo":-7.3,"privado":5.63,"externo":1.67},{"periodo":"2018T2","data":"2018-06","governo":-7.18,"privado":5.15,"externo":2.03},{"periodo":"2018T3","data":"2018-09","governo":-7.08,"privado":4.55,"externo":2.53},{"periodo":"2018T4","data":"2018-12","governo":-6.96,"privado":4.15,"externo":2.81},{"periodo":"2019T1","data":"2019-03","governo":-6.83,"privado":4.02,"externo":2.81},{"periodo":"2019T2","data":"2019-06","governo":-6.37,"privado":3.44,"externo":2.93},{"periodo":"2019T3","data":"2019-09","governo":-6.2,"privado":3.02,"externo":3.18},{"periodo":"2019T4","data":"2019-12","governo":-5.81,"privado":2.39,"externo":3.42},{"periodo":"2020T1","data":"2020-03","governo":-6.11,"privado":2.42,"externo":3.69},{"periodo":"2020T2","data":"2020-06","governo":-11.02,"privado":7.88,"externo":3.14},{"periodo":"2020T3","data":"2020-09","governo":-13.26,"privado":11.3,"externo":1.96},{"periodo":"2020T4","data":"2020-12","governo":-13.34,"privado":11.7,"externo":1.64},{"periodo":"2021T1","data":"2021-03","governo":-12.32,"privado":10.55,"externo":1.77},{"periodo":"2021T2","data":"2021-06","governo":-7.06,"privado":5.64,"externo":1.42},{"periodo":"2021T3","data":"2021-09","governo":-4.64,"privado":2.75,"externo":1.89},{"periodo":"2021T4","data":"2021-12","governo":-4.26,"privado":1.9,"externo":2.36},{"periodo":"2022T1","data":"2022-03","governo":-3.06,"privado":1.37,"externo":1.69},{"periodo":"2022T2","data":"2022-06","governo":-4.1,"privado":1.93,"externo":2.17},{"periodo":"2022T3","data":"2022-09","governo":-4.19,"privado":1.51,"externo":2.68},{"periodo":"2022T4","data":"2022-12","governo":-4.57,"privado":2.42,"externo":2.15},{"periodo":"2023T1","data":"2023-03","governo":-5.98,"privado":3.69,"externo":2.29},{"periodo":"2023T2","data":"2023-06","governo":-6.28,"privado":3.96,"externo":2.32},{"periodo":"2023T3","data":"2023-09","governo":-7.48,"privado":5.89,"externo":1.59},{"periodo":"2023T4","data":"2023-12","governo":-8.84,"privado":7.61,"externo":1.23}]};</script>
+<script>/* Motor dos modelos SIM (Godley & Lavoie, cap. 3) e SFCBR (economia aberta).
+ * Sem dependências. UMD: module.exports em Node, globalThis.SFC no navegador.
+ * Convenção do sfcr_baseline: linha 1 = estado inicial; linha k>=2 é calculada a partir da linha k-1.
+ * Cada período tem forma fechada (as equações são lineares), sem iteração numérica.
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.SFC = factory();
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const DEFAULTS = {
+    sim: { G_d: 20, W: 1, alpha1: 0.6, alpha2: 0.4, theta: 0.2 },
+    sfcbr: {
+      // calibração didática: F = 30 e α3 = 0,5 dão consumo 65%, investimento 15% e gasto 20% do produto
+      G_d: 20, W: 1, F: 30, alpha1: 0.6, alpha2: 0.35, alpha3: 0.5,
+      theta: 0.2, mu_x: 0.18, mu_m: 0.18,
+    },
+  };
+
+  const VARS = {
+    sim: ['Y', 'YD', 'C_d', 'T_d', 'G_d', 'N_d', 'H_h', 'H_s'],
+    sfcbr: ['Y', 'YD', 'C_d', 'T_d', 'G_d', 'N_d', 'H_h', 'H_s', 'I_d', 'X_d', 'M_d'],
+  };
+
+  function check(modelId) {
+    if (!VARS[modelId]) throw new Error(`modelo desconhecido: ${modelId}`);
+  }
+
+  function zeroState(modelId) {
+    check(modelId);
+    const z = {};
+    VARS[modelId].forEach((v) => { z[v] = 0; });
+    return z;
+  }
+
+  function step(modelId, p, prev) {
+    check(modelId);
+    const { G_d, W, alpha1, alpha2, theta } = p;
+    if (modelId === 'sim') {
+      const D = 1 - alpha1 * (1 - theta);
+      const Y = (G_d + alpha2 * prev.H_h) / D;
+      const T_d = theta * Y;
+      const YD = Y - T_d;
+      const C_d = alpha1 * YD + alpha2 * prev.H_h;
+      return {
+        Y, YD, C_d, T_d, G_d, N_d: Y / W,
+        H_h: prev.H_h + YD - C_d,
+        H_s: prev.H_s + G_d - T_d,
+      };
+    }
+    const { F, alpha3, mu_x, mu_m } = p;
+    const D = 1 - mu_x + mu_m - alpha1 * (1 - theta);
+    const Y = (G_d + alpha3 * F + alpha2 * prev.H_h) / D;
+    const T_d = theta * Y;
+    const YD = Y - T_d;
+    const C_d = alpha1 * YD + alpha2 * prev.H_h;
+    const I_d = alpha3 * F;
+    return {
+      Y, YD, C_d, T_d, G_d, N_d: (Y - F) / W,
+      H_h: prev.H_h + YD - C_d - I_d,
+      H_s: prev.H_s + G_d - T_d,
+      I_d, X_d: mu_x * Y, M_d: mu_m * Y,
+    };
+  }
+
+  /* Estado estacionário analítico.
+   * SIM:   H* = (1-a1)(1-θ)·G / (a2·θ)
+   * SFCBR: Y* = G / (θ - mu_x + mu_m);  H* = ((1-a1)(1-θ)·Y* - a3·F) / a2
+   * Com mu_x != mu_m, H_h converge mas H_s não (faltaria o estoque do Resto do Mundo);
+   * por convenção o estado devolvido usa H_s = H_h*. */
+  function steadyState(modelId, p) {
+    check(modelId);
+    const k = (1 - p.alpha1) * (1 - p.theta);
+    let H;
+    if (modelId === 'sim') {
+      if (!(p.theta > 0)) throw new RangeError('sem estado estacionário: theta deve ser > 0');
+      H = (k * p.G_d) / (p.alpha2 * p.theta);
+    } else {
+      const gap = p.theta - p.mu_x + p.mu_m;
+      if (!(gap > 0)) throw new RangeError('sem estado estacionário: theta - mu_x + mu_m deve ser > 0');
+      const Y = p.G_d / gap;
+      H = (k * Y - p.alpha3 * p.F) / p.alpha2;
+    }
+    const s = step(modelId, p, { H_h: H, H_s: H });
+    s.H_h = H;
+    s.H_s = H;
+    return s;
+  }
+
+  /* simulate(modelId, params, { periods=60, init, shock:{start, params} })
+   * Linha 1 = init (padrão: zeros). Linha k>=2 = step sobre a linha k-1, com os
+   * parâmetros do choque quando k >= shock.start. Como no sfcr_scenario, se o choque
+   * começa na linha 1 o G_d exógeno já aparece com o valor do choque na linha 1,
+   * embora as demais variáveis ainda sejam as do estado inicial. */
+  function simulate(modelId, params, opts) {
+    check(modelId);
+    const o = opts || {};
+    const periods = o.periods === undefined ? 60 : o.periods;
+    const shock = o.shock || null;
+    const rows = [Object.assign({}, o.init || zeroState(modelId))];
+    if (shock && shock.start <= 1) {
+      for (const [k, v] of Object.entries(shock.params)) if (k in rows[0]) rows[0][k] = v;
+    }
+    for (let k = 2; k <= periods; k++) {
+      const p = shock && k >= shock.start ? Object.assign({}, params, shock.params) : params;
+      rows.push(step(modelId, p, rows[k - 2]));
+    }
+    const vars = {};
+    for (const name of VARS[modelId]) vars[name] = rows.map((r) => r[name]);
+    return { periods, vars };
+  }
+
+  /* Saldos financeiros setoriais (net lending). SIM tem só dois setores;
+   * no SFCBR o saldo do Resto do Mundo é M_d - X_d (= -conta corrente). */
+  function sectorBalances(modelId, s) {
+    check(modelId);
+    if (modelId === 'sim') {
+      return { private: s.YD - s.C_d, government: s.T_d - s.G_d, external: null };
+    }
+    return {
+      private: s.YD - s.C_d - s.I_d,
+      government: s.T_d - s.G_d,
+      external: s.M_d - s.X_d,
+    };
+  }
+
+  /* Os estoques H_h e H_s fecham entre si? No SFCBR só com mu_x = mu_m
+   * (não há estoque para o Resto do Mundo). */
+  function closes(modelId, p) {
+    check(modelId);
+    return modelId === 'sim' ? true : Math.abs(p.mu_x - p.mu_m) < 1e-12;
+  }
+
+  function denominator(modelId, p) {
+    const a = p.alpha1 * (1 - p.theta);
+    return modelId === 'sim' ? 1 - a : 1 - p.mu_x + p.mu_m - a;
+  }
+
+  /* Fator de convergência de H_h: H_t = λ·H_{t-1} + const. Estável se |λ| < 1. */
+  function stabilityFactor(modelId, p) {
+    check(modelId);
+    return 1 - p.alpha2 + ((1 - p.alpha1) * (1 - p.theta) * p.alpha2) / denominator(modelId, p);
+  }
+
+  function validateParams(modelId, p) {
+    check(modelId);
+    const issues = [];
+    const add = (code, message) => issues.push({ code, message });
+    for (const k of ['alpha1', 'alpha2', 'alpha3', 'theta', 'mu_x', 'mu_m']) {
+      if (k in p && !(Number.isFinite(p[k]) && p[k] >= 0 && p[k] < 1)) {
+        add('FORA_DA_FAIXA', `O parâmetro ${k} precisa estar entre 0 e 1 (obtido ${p[k]}).`);
+      }
+    }
+    if ('G_d' in p && !(Number.isFinite(p.G_d) && p.G_d >= 0)) add('FORA_DA_FAIXA', 'O gasto do governo G não pode ser negativo.');
+    if ('W' in p && !(Number.isFinite(p.W) && p.W > 0)) add('FORA_DA_FAIXA', 'O salário W precisa ser positivo.');
+    if ('F' in p && !(Number.isFinite(p.F) && p.F >= 0)) add('FORA_DA_FAIXA', 'Os lucros F não podem ser negativos.');
+
+    const D = denominator(modelId, p);
+    if (!(D > 0)) {
+      add('SEM_SOLUCAO', 'Com estes parâmetros o multiplicador não tem solução (a demanda cresce mais do que a renda). Reduza a propensão a exportar ou a consumir.');
+    } else if (Math.abs(stabilityFactor(modelId, p)) >= 1 - 1e-9) {
+      add('INSTAVEL', 'Com estes parâmetros a economia não chega a um estado estacionário (por exemplo, com alíquota θ igual a zero, ou com exportações bem acima das importações). Aumente θ ou aproxime µx de µm.');
+    }
+    // salários = Y − F: se os lucros passam do produto de longo prazo, o salário seria negativo
+    const gap = p.theta - p.mu_x + p.mu_m;
+    if (modelId === 'sfcbr' && gap > 0 && p.F > p.G_d / gap + 1e-9) {
+      add('LUCROS_ACIMA_DO_PRODUTO', 'Com estes parâmetros os lucros (F) passam do produto de longo prazo, e os salários ficariam negativos. Reduza F ou aumente o gasto G.');
+    }
+    if (modelId === 'sfcbr' && !closes(modelId, p)) {
+      add('MU_DIFERENTE', 'Com µx diferente de µm, a riqueza do setor privado (H_h) e a do governo (H_s) deixam de fechar entre si: este modelo não tem estoque de ativos do Resto do Mundo.');
+    }
+    return issues;
+  }
+
+  /* Matriz de transações com os números da simulação (renda dos fatores = Y,
+   * pois W·N_d + F = Y no SFCBR e W·N_d = Y no SIM). */
+  function transactionMatrix(modelId, s, prev) {
+    check(modelId);
+    const dHh = s.H_h - prev.H_h;
+    const dHs = s.H_s - prev.H_s;
+    if (modelId === 'sim') {
+      return {
+        columns: ['Famílias', 'Empresas', 'Governo'],
+        rows: [
+          { name: 'Consumo', values: [-s.C_d, s.C_d, 0] },
+          { name: 'Gasto público', values: [0, s.G_d, -s.G_d] },
+          { name: 'Renda dos fatores', values: [s.Y, -s.Y, 0] },
+          { name: 'Impostos', values: [-s.T_d, 0, s.T_d] },
+          { name: 'Variação da moeda', values: [-dHh, 0, dHs] },
+        ],
+      };
+    }
+    return {
+      columns: ['Setor privado', 'Produção', 'Governo', 'Resto do mundo'],
+      rows: [
+        { name: 'Consumo', values: [-s.C_d, s.C_d, 0, 0] },
+        { name: 'Investimento', values: [-s.I_d, s.I_d, 0, 0] },
+        { name: 'Gasto público', values: [0, s.G_d, -s.G_d, 0] },
+        { name: 'Exportações', values: [0, s.X_d, 0, -s.X_d] },
+        { name: 'Importações', values: [0, -s.M_d, 0, s.M_d] },
+        { name: 'Renda dos fatores', values: [s.Y, -s.Y, 0, 0] },
+        { name: 'Impostos', values: [-s.T_d, 0, s.T_d, 0] },
+        { name: 'Variação da moeda', values: [-dHh, 0, dHs, 0] },
+      ],
+    };
+  }
+
+  /* Filtro de pós-processamento (extensão didática, fora do modelo):
+   * Y_efetivo = min(Y, teto), teto = baselineY · pct/100; não realimenta nada. */
+  function applyCapacityCeiling(Y, baselineY, ceilingPct) {
+    if (!(ceilingPct >= 100)) throw new RangeError('o teto de capacidade precisa ser de pelo menos 100% do baseline');
+    const teto = (baselineY * ceilingPct) / 100;
+    const effective = Y.map((y) => Math.min(y, teto));
+    const unmet = Y.map((y, i) => y - effective[i]);
+    return { effective, unmet };
+  }
+
+  return {
+    DEFAULTS, VARS, zeroState, step, steadyState, simulate,
+    sectorBalances, closes, stabilityFactor, validateParams, transactionMatrix, applyCapacityCeiling,
+  };
+});
+
+;
+/* Formatação em português do Brasil e escala de eixos. UMD: globalThis.SFCFormat. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.SFCFormat = factory();
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  /* 1234.5, 1 -> "1.234,5". Valores que arredondam para zero saem sem sinal ("0,00", nunca "-0,00"). */
+  function formatNumber(x, digits) {
+    const abs = Math.abs(x).toFixed(digits);
+    const negativo = x < 0 && Number(abs) !== 0;
+    const [inteiro, decimal] = abs.split('.');
+    const agrupado = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return (negativo ? '-' : '') + agrupado + (decimal ? ',' + decimal : '');
+  }
+
+  /* Marcas de eixo em passos 1/2/5 × 10^n que cobrem [min, max]. */
+  function niceTicks(min, max, count) {
+    let lo = min;
+    let hi = max;
+    // série "plana": inclui ruído de ponto flutuante (ex.: 100 e 100.00000000000003),
+    // que daria passos menores que a precisão do número e travaria o laço
+    const escala = Math.max(1, Math.abs(lo), Math.abs(hi));
+    if (!(hi - lo > 1e-9 * escala)) {
+      const centro = (lo + hi) / 2;
+      const folga = Math.abs(centro) < 1e-9 ? 1 : Math.abs(centro) * 0.1;
+      lo = centro - folga;
+      hi = centro + folga;
+    }
+    const bruto = (hi - lo) / Math.max(1, count);
+    const pot = Math.pow(10, Math.floor(Math.log10(bruto)));
+    const f = bruto / pot;
+    const passo = (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * pot;
+    const inicio = Math.floor(lo / passo + 1e-9) * passo;
+    const fim = Math.ceil(hi / passo - 1e-9) * passo;
+    const n = Math.min(60, Math.max(1, Math.round((fim - inicio) / passo)));
+    const ticks = [];
+    for (let i = 0; i <= n; i++) ticks.push(Number((inicio + i * passo).toPrecision(12)));
+    return ticks;
+  }
+
+  return { formatNumber, niceTicks };
+});
+
+;
+/* Textos do painel (português do Brasil), roteiro guiado e avisos. UMD: globalThis.SFCTexts. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.SFCTexts = factory();
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  // Cada passo fixa modelo, aba, choque e setor: assim o roteiro leva ao mesmo lugar
+  // seja qual for o caminho (avançar, voltar ou mexer nos controles no meio).
+  const G_MAIS_50 = { enabled: true, pct: 50, start: 5, kind: 'G_d' };
+
+  /* Cada passo diz o que a pessoa vai ver e muda o estado do painel (acao). */
+  const ROTEIRO = [
+    {
+      titulo: 'Veja o estado estacionário',
+      texto:
+        'Comece no modelo SIM: uma economia fechada com famílias, empresas e governo. Sem nenhum choque, a renda (Y) fica em 100 e a riqueza das famílias em 80. É o ponto de repouso do modelo: o que as famílias gastam é igual ao que ganham, e o governo gasta o que arrecada.',
+      acao: { mode: 'sim', tab: 'modelo', shock: { enabled: false, pct: 50, start: 5, kind: 'G_d' } },
+    },
+    {
+      titulo: 'Aumente o gasto do governo em 50%',
+      texto:
+        'Agora o governo passa a gastar 50% a mais, a partir do período 5. Veja o produto: ele sobe e se acomoda num novo patamar, mais alto que o anterior. Não houve restrição de oferta nem juros no caminho: este é um modelo de demanda efetiva.',
+      acao: { mode: 'sim', tab: 'resultados', shock: G_MAIS_50 },
+    },
+    {
+      titulo: 'O que aconteceu com o déficit?',
+      texto:
+        'Olhe o saldo do governo. No começo ele fica negativo (déficit), mas, conforme a renda sobe, a arrecadação sobe junto e o déficit se fecha sozinho. No fim, o que sobrou foi um estoque maior de riqueza financeira nas mãos do setor privado, e não uma dívida que explode. A soma dos saldos dos setores é sempre zero.',
+      acao: { mode: 'sim', tab: 'resultados', sector: 'governo', shock: G_MAIS_50 },
+    },
+    {
+      titulo: 'Ligue o SFCBR',
+      texto:
+        'O SFCBR acrescenta investimento (que vem dos lucros) e um setor externo, com exportações e importações proporcionais à renda. Há um novo setor no diagrama, o Resto do mundo. Toque nos setores e mexa nos parâmetros.',
+      acao: { mode: 'sfcbr', tab: 'modelo', shock: G_MAIS_50 },
+    },
+    {
+      titulo: 'Compare os dois modelos',
+      texto:
+        'Com os dois modelos lado a lado, o mesmo choque aparece nas duas trajetórias. O produto é quase igual de propósito: nos dois, o produto de longo prazo é G/θ, e o comércio exterior do SFCBR (exportações = importações) não muda isso. A diferença está em outros lugares: na riqueza (terceiro gráfico), porque no SFCBR parte da renda vira investimento; e nos saldos, já que o SFCBR tem três setores (governo, privado e externo) e o SIM só dois. A folha Metodologia detalha o que muda.',
+      acao: { mode: 'compare', tab: 'resultados', shock: G_MAIS_50 },
+    },
+    {
+      titulo: 'Só o SFCBR tem investimento',
+      texto:
+        'Agora o choque é no investimento: a fração dos lucros que vira investimento (α3) cai pela metade, a partir do período 5. O SIM não tem investimento, então fica parado: é o que diferencia os dois modelos. No SFCBR a demanda cai de imediato e o produto recua; depois ele volta ao patamar anterior, porque o investimento menor deixa mais poupança no setor privado e essa riqueza maior volta a sustentar o consumo. Veja a diferença na tabela, no fim da página.',
+      acao: { mode: 'compare', tab: 'resultados', shock: { enabled: true, pct: -50, start: 5, kind: 'alpha3' } },
+    },
+    {
+      titulo: 'E se o governo cortar gastos?',
+      texto:
+        'Agora o gasto do governo cai 30%, a partir do período 5. O multiplicador também funciona para baixo: o produto cai e se acomoda num patamar menor. Repare nos saldos: por um tempo o governo fica com superávit e o setor privado com déficit, até a arrecadação cair junto com a renda e tudo se fechar de novo.',
+      acao: { mode: 'sfcbr', tab: 'resultados', shock: { enabled: true, pct: -30, start: 5, kind: 'G_d' } },
+    },
+    {
+      titulo: 'E se os consumidores perderem a confiança?',
+      texto:
+        'Agora a propensão a consumir da renda (α1) cai 10%. É o paradoxo da poupança: se todos gastam menos, a renda cai de imediato. Mas observe o resto da história: o produto volta ao patamar anterior, e o setor privado termina com mais riqueza financeira. Neste modelo, o produto de longo prazo é definido pela política fiscal (G/θ); a confiança muda a trajetória e a riqueza acumulada.',
+      acao: { mode: 'sfcbr', tab: 'resultados', shock: { enabled: true, pct: -10, start: 5, kind: 'alpha1' } },
+    },
+    {
+      titulo: 'Limites do modelo',
+      texto:
+        'Todo resultado vem de hipóteses. Na folha que acabou de abrir (botão "Limites do modelo") está o que este modelo assume e o que ele deixa de fora. Se alguma hipótese não vale na economia real, o resultado muda.',
+      acao: { mode: 'sfcbr', tab: 'resultados', folha: 'limites', shock: G_MAIS_50 },
+    },
+  ];
+
+  /* Retorna uma nova UI com o passo i aplicado. */
+  function applyStep(ui, i) {
+    const passo = ROTEIRO[i];
+    const nova = JSON.parse(JSON.stringify(ui));
+    nova.step = i;
+    const a = passo.acao;
+    if (a.mode) nova.mode = a.mode;
+    if (a.tab) nova.tab = a.tab;
+    nova.folha = a.folha || null;
+    nova.sector = a.sector || 'privado';
+    if (a.shock) nova.shock = Object.assign({}, nova.shock, a.shock);
+    return nova;
+  }
+
+  const HIPOTESES = [
+    'Há capacidade ociosa: a oferta responde à demanda, sem limite.',
+    'Salários e preços são fixos (W é dado de fora): não há inflação no modelo.',
+    'O setor privado segue regras fixas de gasto (α1, α2, α3), sem expectativas.',
+    'Não há bancos nem crédito.',
+  ];
+
+  const AVISOS = {
+    MU_DIFERENTE:
+      'Com µx diferente de µm, a riqueza do setor privado e a do governo deixam de fechar entre si: esta versão do modelo não tem estoque de ativos do Resto do Mundo. É a restrição externa (à la Thirlwall) aparecendo na contabilidade.',
+    INSTAVEL:
+      'Com estes parâmetros a economia não chega a um estado estacionário (por exemplo, com alíquota θ igual a zero). Mude os valores para ver a simulação.',
+    SEM_SOLUCAO:
+      'Com estes parâmetros o multiplicador não tem solução. Reduza a propensão a exportar ou a consumir.',
+    FORA_DA_FAIXA: 'Há um parâmetro fora da faixa permitida. Ajuste o valor para ver a simulação.',
+    SIM_SEM_EXTERNO: 'O SIM é uma economia fechada: não existe Resto do mundo neste modelo.',
+    PARAMETROS_ILUSTRATIVOS: 'Atenção: parâmetros ilustrativos, não ajustados a dados reais.',
+    EXTENSAO_DIDATICA: 'Atenção: extensão didática, não faz parte do modelo.',
+    SEM_BANCOS:
+      'Este modelo não tem bancos nem crédito. No artigo, o crédito tem um comportamento difícil de explicar no Brasil; os módulos do repositório servem para incluí-lo.',
+  };
+
+  return { ROTEIRO, applyStep, HIPOTESES, AVISOS };
+});
+
+;
+/* Texto da folha "Metodologia": explica o método SFC e cada modelo, em português claro.
+ * As equações aqui são as mesmas dos modelos em R e do motor em JavaScript. UMD: SFCMetodologia. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.SFCMetodologia = factory();
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const IDEIA = {
+    id: 'ideia',
+    titulo: 'A ideia por trás dos modelos SFC',
+    paragrafos: [
+      'SFC quer dizer stock-flow consistent: consistente em estoques e fluxos. A ideia é simples: nenhum dinheiro surge do nada nem some. Todo fluxo de dinheiro que sai de um setor entra em outro, e todo estoque (a riqueza financeira) é o acúmulo dos fluxos passados.',
+      'Daí vem a regra que o painel mostra o tempo todo: os saldos financeiros de todos os setores somam zero. Se o governo gasta mais do que arrecada (déficit), algum outro setor ganha mais do que gasta (superávit) e acumula ativos financeiros.',
+      'Essa regra é uma identidade contábil: é verdadeira por construção, como as contas nacionais. O que muda de um modelo para outro, e o que pode ser testado com dados, é o comportamento: quanto as famílias consomem, quanto as empresas investem, quanto o país importa.',
+      'É a base da abordagem New Cambridge (Wynne Godley) e dos modelos do Levy Institute: primeiro a contabilidade precisa fechar; só depois se discute o comportamento.',
+    ],
+  };
+
+  const MATRIZ_COMUM =
+    'A matriz de transações é uma tabela com os setores nas colunas e os tipos de transação nas linhas. Cada linha mostra de onde o dinheiro sai (negativo) e para onde vai (positivo), e por isso soma zero. Cada coluna é o orçamento de um setor e também soma zero. Na aba Modelo, o botão "Ver matriz de fluxos" mostra a matriz preenchida com os números da simulação.';
+
+  const REFERENCIAS = [
+    'Godley, W.; Lavoie, M. (2012). Monetary Economics: An Integrated Approach to Credit, Money, Income, Production and Wealth. 2ª ed. Palgrave Macmillan. O modelo SIM é o do capítulo 3.',
+    'Zezza, G. (2009). Aplicação do método do Levy Institute à economia dos EUA, publicada na Intervention: European Journal of Economics and Economic Policies.',
+    'Longhi, G. M.; Pereira, A. J.; Feistel, P. R. (2024). The twin deficits and the New Cambridge approach: estimating the private expenditure equation for Brazil (2001-2018). Brazilian Keynesian Review, 10(2), 394-422.',
+  ];
+
+  const L = (eq, texto) => ({ eq, texto });
+
+  const MODELOS = {
+    sim: {
+      nome: 'SIM (Godley & Lavoie, cap. 3)',
+      equacoes: [
+        {
+          grupo: 'O que se produz é o que se demanda',
+          linhas: [
+            L('C_s = C_d', 'O consumo produzido é igual ao consumo demandado.'),
+            L('G_s = G_d', 'O gasto do governo é atendido por inteiro.'),
+            L('T_s = T_d', 'Os impostos devidos são os impostos pagos.'),
+            L('N_s = N_d', 'Há trabalhadores disponíveis para o emprego demandado (existe desemprego involuntário).'),
+          ],
+        },
+        {
+          grupo: 'Renda e imposto',
+          linhas: [
+            L('YD = W * N_s - T_s', 'A renda disponível é o salário recebido menos os impostos.'),
+            L('T_d = θ * W * N_s', 'O imposto é uma fração θ da renda salarial.'),
+          ],
+        },
+        {
+          grupo: 'Comportamento',
+          linhas: [
+            L('C_d = α1 * YD + α2 * H_h[-1]', 'As famílias consomem uma parte da renda disponível (α1) e uma parte da riqueza que tinham no período anterior (α2).'),
+          ],
+        },
+        {
+          grupo: 'Estoques: o que cada setor acumula',
+          linhas: [
+            L('H_h = H_h[-1] + YD - C_d', 'A riqueza das famílias cresce com o que sobra da renda depois do consumo.'),
+            L('H_s = H_s[-1] + G_d - T_d', 'O governo emite moeda quando gasta mais do que arrecada; essa moeda é a riqueza das famílias.'),
+          ],
+        },
+        {
+          grupo: 'Produto e emprego',
+          linhas: [
+            L('Y = C_s + G_s', 'O produto é a soma do consumo com o gasto do governo.'),
+            L('N_d = Y / W', 'As empresas contratam o necessário para produzir Y.'),
+          ],
+        },
+      ],
+      legenda: {
+        Y: 'Produto, que é também a renda da economia', YD: 'Renda disponível das famílias (depois dos impostos)',
+        C_s: 'Consumo produzido', C_d: 'Consumo demandado', G_s: 'Gasto do governo atendido', G_d: 'Gasto do governo (escolha do governo)',
+        T_s: 'Impostos devidos', T_d: 'Impostos pagos', N_s: 'Trabalho ofertado', N_d: 'Emprego demandado pelas empresas',
+        W: 'Salário (dado de fora)', H_h: 'Riqueza financeira das famílias (moeda)', H_s: 'Moeda emitida pelo governo',
+        α1: 'Propensão a consumir a renda', α2: 'Propensão a consumir a riqueza', θ: 'Alíquota de imposto',
+      },
+      textos: {
+        setores: [
+          'O SIM é uma economia fechada com três setores. As famílias recebem salários, pagam impostos, consomem e guardam o resto como riqueza financeira. As empresas produzem o que é demandado e pagam salários. O governo gasta e arrecada impostos; quando gasta mais do que arrecada, cria a moeda que as famílias guardam.',
+          'Importante: parâmetros ilustrativos, não ajustados a dados reais. Eles servem para mostrar a lógica do modelo, não para prever a economia.',
+        ],
+        matriz: [MATRIZ_COMUM + ' No SIM são três colunas: famílias, empresas e governo.'],
+        estacionario: [
+          'No estado estacionário a riqueza das famílias para de crescer (elas gastam tudo o que ganham) e o orçamento do governo fecha: T = G. Como T = θ·Y, o produto de longo prazo é Y = G/θ. Com G = 20 e θ = 0,2, Y = 100.',
+          'Ou seja: a política fiscal (G e θ) define o nível do produto. O comportamento das famílias (α1 e α2) define quanta riqueza elas acumulam e quão rápido o produto chega lá.',
+        ],
+        saldos: [
+          'Os saldos setoriais são: setor privado = renda disponível menos consumo; governo = impostos menos gasto. Como não há Resto do mundo, os dois somam zero em todo período: o déficit do governo é exatamente o superávit das famílias.',
+        ],
+      },
+    },
+
+    sfcbr: {
+      nome: 'SFCBR (modelo aberto)',
+      equacoes: [
+        {
+          grupo: 'O que se produz é o que se demanda',
+          linhas: [
+            L('C_s = C_d', 'O consumo produzido é igual ao consumo demandado.'),
+            L('I_s = I_d', 'O investimento produzido é igual ao investimento demandado.'),
+            L('G_s = G_d', 'O gasto do governo é atendido por inteiro.'),
+            L('T_s = T_d', 'Os impostos devidos são os impostos pagos.'),
+            L('N_s = N_d', 'Há trabalhadores disponíveis para o emprego demandado.'),
+            L('X_s = X_d', 'As exportações demandadas pelo exterior são atendidas.'),
+            L('M_s = M_d', 'As importações demandadas internamente são atendidas.'),
+          ],
+        },
+        {
+          grupo: 'Comércio exterior',
+          linhas: [
+            L('X_d = µx * Y', 'As exportações são uma fração µx da renda.'),
+            L('M_d = µm * Y', 'As importações são uma fração µm da renda.'),
+          ],
+        },
+        {
+          grupo: 'Renda, imposto e comportamento',
+          linhas: [
+            L('YD = W * N_s + F - T_s', 'A renda disponível soma salários e lucros e desconta os impostos.'),
+            L('T_d = θ * (W * N_s + F)', 'O imposto é uma fração θ da renda (salários e lucros).'),
+            L('C_d = α1 * YD + α2 * H_h[-1]', 'O consumo depende da renda disponível (α1) e da riqueza do período anterior (α2).'),
+            L('I_d = α3 * F', 'As empresas investem uma fração α3 dos lucros (ideia de Kalecki).'),
+          ],
+        },
+        {
+          grupo: 'Estoques: o que cada setor acumula',
+          linhas: [
+            L('H_h = H_h[-1] + YD - C_d - I_d', 'A riqueza do setor privado cresce com o que sobra da renda depois de consumir e investir.'),
+            L('H_s = H_s[-1] + G_d - T_d', 'O governo emite moeda quando gasta mais do que arrecada.'),
+          ],
+        },
+        {
+          grupo: 'Produto e emprego',
+          linhas: [
+            L('Y = (C_s + G_s + I_s) / (1 - µx + µm)', 'O produto é a demanda interna dividida por um fator que embute o comércio exterior (exportações somam, importações vazam).'),
+            L('N_d = (Y - F) / W', 'Os salários pagos são o produto menos os lucros, então o emprego é (Y − F)/W.'),
+          ],
+        },
+      ],
+      legenda: {
+        Y: 'Produto, que é também a renda da economia', YD: 'Renda disponível do setor privado (depois dos impostos)',
+        C_s: 'Consumo produzido', C_d: 'Consumo demandado', I_s: 'Investimento produzido', I_d: 'Investimento demandado',
+        G_s: 'Gasto do governo atendido', G_d: 'Gasto do governo (escolha do governo)', T_s: 'Impostos devidos', T_d: 'Impostos pagos',
+        N_s: 'Trabalho ofertado', N_d: 'Emprego demandado pelas empresas', X_s: 'Exportações atendidas', X_d: 'Exportações demandadas pelo exterior',
+        M_s: 'Importações atendidas', M_d: 'Importações demandadas internamente',
+        W: 'Salário (dado de fora)', F: 'Lucros (dado de fora)',
+        H_h: 'Riqueza financeira do setor privado (moeda)', H_s: 'Moeda emitida pelo governo',
+        α1: 'Propensão a consumir a renda', α2: 'Propensão a consumir a riqueza', α3: 'Fração dos lucros que vira investimento',
+        θ: 'Alíquota de imposto', µx: 'Propensão a exportar', µm: 'Propensão a importar',
+      },
+      textos: {
+        setores: [
+          'O SFCBR é uma economia aberta com quatro setores. O setor privado (famílias e empresas juntas) recebe salários e lucros, consome e investe. A produção atende à demanda. O governo gasta e arrecada. O Resto do mundo compra as exportações e vende as importações.',
+          'Os lucros (F) são dados de fora, e o investimento é uma fração deles, como em Kalecki. O comércio exterior é proporcional à renda. Não há bancos, crédito, preços nem câmbio.',
+          'Calibração didática: F = 30 e α3 = 0,5 (a metade dos lucros vira investimento). Com G = 20 e θ = 0,2, o produto fica em 100, e o consumo, o investimento e o gasto do governo ficam em 65%, 15% e 20% do produto, pesos parecidos com os de uma economia real.',
+          'Importante: parâmetros ilustrativos, não ajustados a dados reais. Eles servem para mostrar a lógica do modelo, não para prever a economia.',
+        ],
+        matriz: [
+          MATRIZ_COMUM + ' No SFCBR são quatro colunas: setor privado, produção, governo e Resto do mundo.',
+          'Se µx for diferente de µm, a coluna do Resto do mundo deixa de somar zero. O painel mostra esse aviso: esta versão do modelo não tem estoque de ativos do Resto do Mundo, e por isso exige µx = µm.',
+        ],
+        estacionario: [
+          'No estado estacionário a riqueza do setor privado para de crescer e o orçamento do governo fecha (T = G). O produto de longo prazo é Y = G/(θ − µx + µm). Quando µx = µm, isso é Y = G/θ, como no SIM: com G = 20 e θ = 0,2, Y = 100.',
+          'O investimento (α3·F) e a confiança do consumidor (α1) mudam a trajetória do produto e a riqueza acumulada, mas não o produto de longo prazo: ele é fixado pela política fiscal.',
+          'Por que µx = µm? Como o modelo não tem estoque de ativos do Resto do Mundo, os estoques do setor privado e do governo só fecham entre si quando o comércio exterior é equilibrado. Por isso o painel não oferece choques só no setor externo.',
+        ],
+        saldos: [
+          'Os saldos setoriais são: setor privado = renda disponível − consumo − investimento; governo = impostos − gasto; Resto do mundo = importações − exportações (o inverso da conta corrente).',
+          'Os três somam zero em todo período. Se o governo tem déficit, o setor privado e o Resto do mundo, juntos, têm superávit.',
+        ],
+      },
+    },
+  };
+
+  function secoes(modelId) {
+    const m = MODELOS[modelId];
+    return [
+      IDEIA,
+      { id: 'setores', titulo: 'Quem são os setores', paragrafos: m.textos.setores },
+      { id: 'matriz', titulo: 'A matriz de transações', paragrafos: m.textos.matriz },
+      {
+        id: 'equacoes',
+        titulo: `As equações do ${modelId === 'sim' ? 'SIM' : 'SFCBR'}`,
+        paragrafos: ['Cada linha abaixo é uma equação do modelo, escrita como no código em R. A notação [-1] quer dizer "o valor do período anterior".'],
+        grupos: m.equacoes,
+        legenda: m.legenda,
+      },
+      { id: 'estacionario', titulo: 'Para onde a economia vai: o estado estacionário', paragrafos: m.textos.estacionario },
+      { id: 'saldos', titulo: 'Como ler os saldos setoriais', paragrafos: m.textos.saldos },
+      { id: 'referencias', titulo: 'Para ler mais', paragrafos: REFERENCIAS },
+    ];
+  }
+
+  function modelosDoModo(mode) {
+    return mode === 'compare' ? ['sim', 'sfcbr'] : [mode];
+  }
+
+  const DIFERENCAS = [
+    'O SFCBR acrescenta o investimento: as empresas investem uma fração α3 dos lucros (I = α3·F), e os lucros F são dados de fora.',
+    'O SFCBR acrescenta o Resto do mundo: exportações e importações são proporcionais à renda (µx·Y e µm·Y).',
+    'Por isso o SFCBR tem três saldos setoriais (governo, setor privado e Resto do mundo) e o SIM só dois.',
+    'No mais, os dois compartilham a mesma lógica: consumo da renda e da riqueza, imposto proporcional e moeda emitida pelo governo.',
+  ];
+
+  return { MODELOS, DIFERENCAS, secoes, modelosDoModo };
+});
+
+;
+/* Estado e lógica do painel, em funções puras (testadas em Node). UMD: globalThis.SFCPanel. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    module.exports = factory(require('../../model/js/engine.js'), require('./texts.js'));
+  } else {
+    root.SFCPanel = factory(root.SFC, root.SFCTexts);
+  }
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (SFC, Texts) {
+  'use strict';
+
+  const R = (min, max, step, label, sector) => ({ min, max, step, label, sector });
+
+  const PARAM_RANGES = {
+    sim: {
+      G_d: R(0, 40, 1, 'Gasto do governo (G)', 'governo'),
+      theta: R(0.05, 0.5, 0.01, 'Alíquota de imposto (θ)', 'governo'),
+      alpha1: R(0.3, 0.9, 0.01, 'Consumo a partir da renda (α1)', 'privado'),
+      alpha2: R(0.05, 0.6, 0.01, 'Consumo a partir da riqueza (α2)', 'privado'),
+    },
+    sfcbr: {
+      G_d: R(0, 40, 1, 'Gasto do governo (G)', 'governo'),
+      theta: R(0.05, 0.5, 0.01, 'Alíquota de imposto (θ)', 'governo'),
+      alpha1: R(0.3, 0.9, 0.01, 'Consumo a partir da renda (α1)', 'privado'),
+      alpha2: R(0.05, 0.6, 0.01, 'Consumo a partir da riqueza (α2)', 'privado'),
+      alpha3: R(0, 0.95, 0.01, 'Investimento a partir dos lucros (α3)', 'privado'),
+      F: R(0, 60, 1, 'Lucros (F)', 'privado'),
+      mu_x: R(0, 0.4, 0.01, 'Propensão a exportar (µx)', 'externo'),
+      mu_m: R(0, 0.4, 0.01, 'Propensão a importar (µm)', 'externo'),
+    },
+  };
+
+  const NOMES_SETOR = {
+    governo: 'Governo',
+    privado: 'Setor privado',
+    producao: 'Produção',
+    externo: 'Resto do mundo',
+  };
+
+  const clone = (x) => JSON.parse(JSON.stringify(x));
+  // bloqueiam a simulação; MU_DIFERENTE só avisa
+  const BLOQUEANTES = ['FORA_DA_FAIXA', 'SEM_SOLUCAO', 'INSTAVEL', 'LUCROS_ACIMA_DO_PRODUTO'];
+
+  /* Choques disponíveis: variação relativa de um parâmetro, a partir do período `start`.
+   * Só os que existem nos modelos mostrados; choques no setor externo ficam de fora de propósito
+   * (mu_x ≠ mu_m tira os estoques do fechamento). */
+  const SHOCKS = {
+    G_d: { rotulo: 'Gasto G', curto: 'G', nome: 'Gasto do governo (G)', models: ['sim', 'sfcbr'] },
+    theta: { rotulo: 'Alíquota θ', curto: 'θ', nome: 'Alíquota de imposto (θ)', models: ['sim', 'sfcbr'] },
+    alpha1: { rotulo: 'Confiança α1', curto: 'α1', nome: 'Confiança do consumidor (α1)', models: ['sim', 'sfcbr'] },
+    alpha3: { rotulo: 'Investimento α3', curto: 'α3', nome: 'Investimento (α3)', models: ['sfcbr'] },
+    F: { rotulo: 'Lucros F', curto: 'F', nome: 'Lucros (F)', models: ['sfcbr'] },
+  };
+  const SHOCK_RANGE = { min: -50, max: 100, step: 10 };
+
+  // No modo comparar entram também os choques que só o SFCBR tem (investimento e lucros):
+  // o SIM fica sem choque, e essa é justamente a diferença entre os modelos.
+  function availableShocks(mode) {
+    const modelos = mode === 'compare' ? ['sim', 'sfcbr'] : [mode];
+    return Object.keys(SHOCKS).filter((k) => modelos.some((m) => SHOCKS[k].models.indexOf(m) >= 0));
+  }
+
+  function shockLabel(ui) {
+    const pct = ui.shock.pct;
+    return `${SHOCKS[ui.shock.kind].curto} ${pct > 0 ? '+' : ''}${pct}%`;
+  }
+
+  function makeInitialUI() {
+    return {
+      mode: 'sfcbr',
+      params: { sim: clone(SFC.DEFAULTS.sim), sfcbr: clone(SFC.DEFAULTS.sfcbr) },
+      muLinked: true,
+      shock: { enabled: true, start: 5, pct: 50, kind: 'G_d' },
+      ceiling: { on: false, pct: 120 },
+      tab: 'modelo',
+      folha: null, // folha aberta por cima da tela: null | 'metodologia' | 'limites' | 'brasil'
+      sector: 'privado',
+      period: 8,
+      step: 0,
+    };
+  }
+
+  function setParam(ui, modelId, key, value) {
+    const nova = clone(ui);
+    nova.params[modelId][key] = value;
+    if (modelId === 'sfcbr' && nova.muLinked && (key === 'mu_x' || key === 'mu_m')) {
+      nova.params.sfcbr.mu_x = value;
+      nova.params.sfcbr.mu_m = value;
+    }
+    return nova;
+  }
+
+  /* Controles da tela: no modo SIM mexem no SIM; nos demais, no SFCBR. No modo comparar,
+   * G e θ (política fiscal) valem para os dois, para que o mesmo choque seja comparado. */
+  function setParamForMode(ui, key, value) {
+    const modelo = ui.mode === 'sim' ? 'sim' : 'sfcbr';
+    let nova = setParam(ui, modelo, key, value);
+    if (ui.mode === 'compare' && (key === 'G_d' || key === 'theta')) {
+      nova = setParam(nova, 'sim', key, value);
+    }
+    return nova;
+  }
+
+  /* Troca o modelo mostrado; se o choque escolhido não existe nele, volta ao gasto do governo. */
+  function setMode(ui, mode) {
+    const nova = clone(ui);
+    nova.mode = mode;
+    nova.sector = 'privado';
+    if (availableShocks(mode).indexOf(nova.shock.kind) < 0) nova.shock.kind = 'G_d';
+    return nova;
+  }
+
+  function setMuLinked(ui, linked) {
+    const nova = clone(ui);
+    nova.muLinked = linked;
+    if (linked) nova.params.sfcbr.mu_m = nova.params.sfcbr.mu_x;
+    return nova;
+  }
+
+  function runScenario(ui) {
+    const models = ui.mode === 'compare' ? ['sim', 'sfcbr'] : [ui.mode];
+    const out = { models, baseline: {}, shocked: {}, issues: {}, blocked: {}, closes: {}, semParametro: {} };
+    for (const id of models) {
+      const p = ui.params[id];
+      const issues = SFC.validateParams(id, p);
+      const blocked = issues.some((x) => BLOQUEANTES.includes(x.code));
+      out.issues[id] = issues;
+      out.blocked[id] = blocked;
+      out.closes[id] = SFC.closes(id, p);
+      if (blocked) {
+        out.baseline[id] = null;
+        out.shocked[id] = null;
+        continue;
+      }
+      const init = SFC.steadyState(id, p);
+      out.baseline[id] = SFC.simulate(id, p, { init });
+      const ativo = ui.shock.enabled && ui.shock.pct !== 0;
+      const kind = ui.shock.kind || 'G_d';
+      out.shocked[id] = out.baseline[id];
+      if (ativo && SHOCKS[kind].models.indexOf(id) < 0) {
+        out.semParametro[id] = true; // ex.: o SIM não tem investimento (α3) nem lucros (F)
+      } else if (ativo) {
+        const novo = p[kind] * (1 + ui.shock.pct / 100);
+        const choque = {};
+        choque[kind] = novo;
+        const inviavel = SFC.validateParams(id, Object.assign({}, p, choque))
+          .filter((x) => BLOQUEANTES.indexOf(x.code) >= 0);
+        if (inviavel.length) {
+          issues.push({
+            code: 'CHOQUE_INVIAVEL',
+            message: `Este choque leva o parâmetro a um valor inviável e não foi aplicado. ${inviavel[0].message}`,
+          });
+        } else {
+          out.shocked[id] = SFC.simulate(id, p, { init, shock: { start: ui.shock.start, params: choque } });
+        }
+      }
+    }
+    return out;
+  }
+
+  const rowAt = (vars, i) => {
+    const o = {};
+    Object.keys(vars).forEach((k) => { o[k] = vars[k][i]; });
+    return o;
+  };
+
+  function sectorCards(ui, result, modelId, period) {
+    const sim = result.shocked[modelId];
+    const i = Math.min(Math.max(period, 1), 60) - 1;
+    const bal = sim ? SFC.sectorBalances(modelId, rowAt(sim.vars, i)) : null;
+    const ids = modelId === 'sim'
+      ? ['governo', 'privado', 'producao']
+      : ['governo', 'privado', 'producao', 'externo'];
+    const saldoDe = { governo: bal && bal.government, privado: bal && bal.private, producao: null, externo: bal && bal.external };
+    return ids.map((id) => {
+      let keys = Object.keys(PARAM_RANGES[modelId]).filter((k) => PARAM_RANGES[modelId][k].sector === id);
+      if (id === 'externo' && ui.muLinked) keys = ['mu_x'];
+      const params = keys.map((key) => {
+        const r = PARAM_RANGES[modelId][key];
+        const label = id === 'externo' && ui.muLinked ? 'Exportações = importações (µ)' : r.label;
+        return { key, label, min: r.min, max: r.max, step: r.step, value: ui.params[modelId][key] };
+      });
+      const saldo = saldoDe[id] === undefined || saldoDe[id] === null ? null : saldoDe[id];
+      return { id, nome: NOMES_SETOR[id], saldo, params, bloqueado: !sim };
+    });
+  }
+
+  /* Soma dos saldos mostrados no diagrama (governo + privado [+ externo]); é zero por identidade. */
+  function saldosSoma(cards) {
+    return cards.reduce((a, c) => a + (c.saldo === null ? 0 : c.saldo), 0);
+  }
+
+  /* Escala vertical FIXA do mini gráfico, por tipo de choque (não muda com o tamanho do choque,
+   * para que a diferença entre um choque positivo e um negativo seja visível ao arrastar a barra).
+   * G, θ e α1 movem muito o produto (G e θ definem Y* = G/θ; α1 pode levar Y a mais de 2x no
+   * período do choque); α3 e F movem pouco. Um teste confere que a escala cobre todo tamanho de choque. */
+  function miniDomain(kind, produto0) {
+    const y0 = Math.round(produto0 * 100) / 100; // tira o ruído de ponto flutuante do estado estacionário
+    const grande = kind === 'G_d' || kind === 'theta' || kind === 'alpha1';
+    // (y0 * k) / 10 evita ruído (2,5 × 100 em ponto flutuante)
+    return grande ? [(y0 * 4) / 10, (y0 * 25) / 10] : [(y0 * 6) / 10, (y0 * 14) / 10];
+  }
+
+  /* Séries do mini gráfico de produto que fica na barra de choque fixa. */
+  function miniChart(ui, result) {
+    const multi = result.models.length > 1;
+    const ativo = ui.shock.enabled && ui.shock.pct !== 0;
+    const series = [];
+    result.models.forEach((id) => {
+      if (!result.shocked[id]) return;
+      const nome = id === 'sim' ? 'SIM' : 'SFCBR';
+      if (!multi && ativo) series.push({ name: 'Sem choque', values: result.baseline[id].vars.Y, cls: 's-base' });
+      series.push({
+        name: multi ? nome : ativo ? `${nome} (com choque)` : nome,
+        values: result.shocked[id].vars.Y,
+        cls: id === 'sim' ? 's-sim' : 's-sfcbr',
+        dash: multi && id === 'sim',
+      });
+    });
+    const foco = focoModelo(ui);
+    const base = result.baseline[foco];
+    const y0 = base ? base.vars.Y[0] : 100;
+    return {
+      series,
+      yDomain: miniDomain(ui.shock.kind || 'G_d', y0),
+      markX: ativo ? ui.shock.start : undefined,
+    };
+  }
+
+  /* Tabela "onde os dois modelos diferem": valores no período escolhido, lado a lado.
+   * null onde o SIM não tem a variável (ou onde o modelo está bloqueado). Só existe no modo comparar. */
+  function comparacaoTabela(ui, result, periodo) {
+    if (ui.mode !== 'compare') return null;
+    const i = Math.min(Math.max(Math.round(periodo), 1), 60);
+    const coluna = (id) => {
+      const sim = result.shocked[id];
+      if (!sim) return null;
+      const linha = rowAt(sim.vars, i - 1);
+      return { v: linha, b: SFC.sectorBalances(id, linha) };
+    };
+    const a = coluna('sim');
+    const c = coluna('sfcbr');
+    const L = (id, nome, fSim, fSfcbr) => ({
+      id,
+      nome,
+      sim: a && fSim ? fSim(a) : null,
+      sfcbr: c && fSfcbr ? fSfcbr(c) : null,
+    });
+    const v = (k) => (x) => x.v[k];
+    return {
+      periodo: i,
+      linhas: [
+        L('Y', 'Produto (Y)', v('Y'), v('Y')),
+        L('C_d', 'Consumo (C)', v('C_d'), v('C_d')),
+        L('I_d', 'Investimento (I)', null, v('I_d')),
+        L('G_d', 'Gasto do governo (G)', v('G_d'), v('G_d')),
+        L('X_d', 'Exportações (X)', null, v('X_d')),
+        L('M_d', 'Importações (M)', null, v('M_d')),
+        L('H_h', 'Riqueza do setor privado (H)', v('H_h'), v('H_h')),
+        L('saldo_gov', 'Saldo do governo', (x) => x.b.government, (x) => x.b.government),
+        L('saldo_priv', 'Saldo do setor privado', (x) => x.b.private, (x) => x.b.private),
+        L('saldo_ext', 'Saldo do Resto do mundo', null, (x) => x.b.external),
+      ],
+    };
+  }
+
+  /* Marcas do eixo x em anos: uma a cada `passo` anos, no primeiro trimestre do ano. */
+  function anoTicks(periodos, passo) {
+    const p = passo || 5;
+    const out = [];
+    periodos.forEach((per, i) => {
+      const m = /^(\d{4})T1$/.exec(per);
+      if (m && Number(m[1]) % p === 0) out.push({ i, label: m[1] });
+    });
+    return out;
+  }
+
+  /* Saldos setoriais em nível, uma série por setor (externo é null no SIM). */
+  function balanceSeries(modelId, sim) {
+    const governo = [];
+    const privado = [];
+    const externo = modelId === 'sim' ? null : [];
+    for (let i = 0; i < sim.vars.Y.length; i++) {
+      const b = SFC.sectorBalances(modelId, rowAt(sim.vars, i));
+      governo.push(b.government);
+      privado.push(b.private);
+      if (externo) externo.push(b.external);
+    }
+    return { governo, privado, externo };
+  }
+
+  /* Saldos em % de Y (para comparar com a série real do Brasil, em % do PIB). */
+  function balancesPctOfY(modelId, sim) {
+    const governo = [];
+    const privado = [];
+    const externo = modelId === 'sim' ? null : [];
+    const n = sim.vars.Y.length;
+    for (let i = 0; i < n; i++) {
+      const b = SFC.sectorBalances(modelId, rowAt(sim.vars, i));
+      const y = sim.vars.Y[i];
+      const pct = (v) => (y === 0 ? 0 : (v / y) * 100);
+      governo.push(pct(b.government));
+      privado.push(pct(b.private));
+      if (externo) externo.push(pct(b.external));
+    }
+    return { governo, privado, externo };
+  }
+
+  const focoModelo = (ui) => (ui.mode === 'sim' ? 'sim' : 'sfcbr');
+
+  /* Aba "Limites do modelo": hipóteses, teto de capacidade (filtro de pós-processamento,
+   * fora do modelo) e o aviso do que falta. */
+  function limitsView(ui, result) {
+    const foco = focoModelo(ui);
+    const pct = Math.max(100, ui.ceiling.pct);
+    const shocked = result.shocked[foco];
+    const base = result.baseline[foco];
+    let effective = null;
+    let unmet = null;
+    if (ui.ceiling.on && shocked) {
+      const r = SFC.applyCapacityCeiling(shocked.vars.Y, base.vars.Y[0], pct);
+      effective = r.effective;
+      unmet = r.unmet;
+    }
+    return {
+      foco,
+      hipoteses: Texts.HIPOTESES,
+      ceiling: { on: ui.ceiling.on, pct, effective, unmet, demanda: shocked ? shocked.vars.Y : null },
+      falta: Texts.AVISOS.SEM_BANCOS,
+      extensaoRotulo: ui.ceiling.on ? Texts.AVISOS.EXTENSAO_DIDATICA : null,
+    };
+  }
+
+  /* Folha "Dados reais": saldos setoriais reais do Brasil (% do PIB), sem comparar com o modelo
+   * (parâmetros ilustrativos não permitem um teste de ajuste). `reais` = docs/data/saldos_setoriais.json. */
+  function dadosReaisView(reais) {
+    const dados = reais || (typeof window !== 'undefined' ? window.SALDOS_REAIS : undefined);
+    const serie = dados.serie;
+    const periodos = serie.map((r) => r.periodo);
+    const series = {
+      governo: serie.map((r) => r.governo),
+      privado: serie.map((r) => r.privado),
+      externo: serie.map((r) => r.externo),
+    };
+    const resumo = ['governo', 'privado', 'externo'].map((setor) => {
+      const v = series[setor];
+      const min = Math.min.apply(null, v);
+      const max = Math.max.apply(null, v);
+      return {
+        setor,
+        media: v.reduce((a, x) => a + x, 0) / v.length,
+        min, max,
+        minPeriodo: periodos[v.indexOf(min)],
+        maxPeriodo: periodos[v.indexOf(max)],
+      };
+    });
+    const todos = series.governo.concat(series.privado, series.externo);
+    const somaMax = Math.max.apply(null, serie.map((r) => Math.abs(r.governo + r.privado + r.externo)));
+    return {
+      periodos, series, resumo, somaMax,
+      yDomain: [Math.floor(Math.min.apply(null, todos) - 1), Math.ceil(Math.max.apply(null, todos) + 1)],
+      ticks: anoTicks(periodos),
+      aviso: Texts.AVISOS.PARAMETROS_ILUSTRATIVOS,
+    };
+  }
+
+  return {
+    PARAM_RANGES, NOMES_SETOR, SHOCKS, SHOCK_RANGE, availableShocks, shockLabel,
+    makeInitialUI, setParam, setParamForMode, setMode, setMuLinked,
+    runScenario, sectorCards, saldosSoma, comparacaoTabela, anoTicks, miniChart, miniDomain, balanceSeries, balancesPctOfY, limitsView, dadosReaisView,
+  };
+});
+
+;
+/* Gráfico de linhas em SVG (texto), sem dependências. UMD: globalThis.SFCCharts. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./format.js'));
+  else root.SFCCharts = factory(root.SFCFormat);
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (Fmt) {
+  'use strict';
+
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const n1 = (x) => (Math.round(x * 10) / 10).toString();
+
+  /* spec: { width, height, series:[{name, values, cls, dash?}], xLabel, yLabel, markX?, yDomain? }
+   * markX = período (1-based) em que o choque entra; yDomain fixa a escala vertical. */
+  function lineChartSVG(spec) {
+    const W = spec.width || 360;
+    const H = spec.height || 200;
+    // modo compacto (mini gráfico da barra fixa): margens menores e sem títulos de eixo
+    const m = spec.compact ? { l: 34, r: 8, t: 8, b: 18 } : { l: 46, r: 10, t: 22, b: 34 };
+    const iw = W - m.l - m.r;
+    const ih = H - m.t - m.b;
+
+    let ymin;
+    let ymax;
+    let ticks;
+    if (spec.yDomain) {
+      ymin = spec.yDomain[0];
+      ymax = spec.yDomain[1];
+      ticks = Fmt.niceTicks(ymin, ymax, 4).filter((v) => v >= ymin - 1e-9 && v <= ymax + 1e-9);
+    } else {
+      const todos = spec.series.reduce((acc, s) => acc.concat(s.values), []).filter(Number.isFinite);
+      ticks = Fmt.niceTicks(Math.min(...todos), Math.max(...todos), 4);
+      ymin = ticks[0];
+      ymax = ticks[ticks.length - 1];
+    }
+    const nmax = Math.max(...spec.series.map((s) => s.values.length));
+    const X = (i) => m.l + (nmax <= 1 ? 0 : (i / (nmax - 1)) * iw);
+    const Y = (v) => m.t + (1 - (v - ymin) / (ymax - ymin)) * ih;
+
+    const rotulo = `${spec.yLabel}: ${spec.series.map((s) => s.name).join(', ')}`;
+    let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(rotulo)}" preserveAspectRatio="xMidYMid meet">`;
+
+    // casas decimais do rótulo vêm do passo do eixo (passo 0,5 → 1 casa; 0,05 → 2), para não repetir rótulos
+    const passoEixo = ticks.length > 1 ? ticks[1] - ticks[0] : 1;
+    const casas = Math.max(0, Math.min(6, -Math.floor(Math.log10(passoEixo) + 1e-9)));
+    for (const v of ticks) {
+      const y = Y(v);
+      svg += `<line class="grade" x1="${m.l}" x2="${W - m.r}" y1="${n1(y)}" y2="${n1(y)}"/>`;
+      svg += `<text class="ytick" x="${m.l - 6}" y="${n1(y + 4)}" text-anchor="end">${Fmt.formatNumber(v, casas)}</text>`;
+    }
+    if (ymin < 0 && ymax > 0) {
+      svg += `<line class="zero" x1="${m.l}" x2="${W - m.r}" y1="${n1(Y(0))}" y2="${n1(Y(0))}"/>`;
+    }
+    const yRot = H - m.b + (spec.compact ? 12 : 14);
+    if (spec.xTicks) {
+      // marcas personalizadas (ex.: anos): [{ i: índice do ponto, label }]
+      spec.xTicks.forEach((t) => {
+        svg += `<text class="xtick" x="${n1(X(t.i))}" y="${yRot}" text-anchor="middle">${esc(t.label)}</text>`;
+      });
+    } else {
+      const passoX = spec.compact ? 20 : nmax > 30 ? 10 : 5;
+      for (let p = 1; p <= nmax; p += p === 1 ? passoX - 1 : passoX) {
+        svg += `<text class="xtick" x="${n1(X(p - 1))}" y="${yRot}" text-anchor="middle">${p}</text>`;
+      }
+    }
+    if (!spec.compact) {
+      svg += `<text class="eixo" x="${m.l + iw / 2}" y="${H - 4}" text-anchor="middle">${esc(spec.xLabel)}</text>`;
+      svg += `<text class="eixo" x="4" y="11" text-anchor="start">${esc(spec.yLabel)}</text>`;
+    }
+
+    if (spec.markX && spec.markX >= 1 && spec.markX <= nmax) {
+      const x = X(spec.markX - 1);
+      svg += `<line class="marca" x1="${n1(x)}" x2="${n1(x)}" y1="${m.t}" y2="${m.t + ih}"/>`;
+    }
+    for (const s of spec.series) {
+      const d = s.values
+        .map((v, i) => `${i === 0 ? 'M' : 'L'}${n1(X(i))},${n1(Y(v))}`)
+        .join(' ');
+      svg += `<path class="serie ${esc(s.cls)}${s.dash ? ' tracejado' : ''}" d="${d}"/>`;
+    }
+    return svg + '</svg>';
+  }
+
+  return { lineChartSVG };
+});
+
+;
+/* Diagrama dos setores (SVG em texto): nós clicáveis com o saldo financeiro de cada setor.
+ * UMD: globalThis.SFCDiagram. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./format.js'));
+  else root.SFCDiagram = factory(root.SFCFormat);
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (Fmt) {
+  'use strict';
+
+  // posição de cada nó no desenho (viewBox 360 de largura)
+  const POS = {
+    governo: { x: 126, y: 8 },
+    privado: { x: 14, y: 112 },
+    producao: { x: 246, y: 112 },
+    externo: { x: 126, y: 216 },
+  };
+  const NW = 108;
+  const NH = 56;
+
+  const seta = (x1, y1, x2, y2, rotulo, lx, ly, fluxo, de, para) =>
+    `<line class="seta" data-fluxo="${fluxo}" data-de="${de}" data-para="${para}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" marker-end="url(#ponta)"/>` +
+    `<text class="rot" x="${lx}" y="${ly}" text-anchor="middle">${rotulo}</text>`;
+
+  function diagramSVG(cards, selectedId) {
+    const temExterno = cards.some((c) => c.id === 'externo');
+    const H = temExterno ? 284 : 180;
+    let svg = `<svg viewBox="0 0 360 ${H}" width="100%" role="group" aria-label="Setores da economia e seus saldos financeiros">`;
+    svg += '<defs><marker id="ponta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ponta"/></marker></defs>';
+
+    // fluxos: renda (Produção → Privado), gasto (Privado → Produção), impostos e gasto público
+    svg += seta(244, 132, 124, 132, 'renda', 184, 124, 'renda', 'producao', 'privado');
+    svg += seta(124, 152, 244, 152, 'consumo e investimento', 184, 168, 'gasto', 'privado', 'producao');
+    svg += seta(60, 108, 130, 50, 'impostos T', 76, 74, 'T', 'privado', 'governo');
+    svg += seta(230, 50, 290, 108, 'gasto G', 276, 74, 'G', 'governo', 'producao');
+    if (temExterno) {
+      svg += seta(270, 172, 222, 216, 'M', 236, 190, 'M', 'producao', 'externo');
+      svg += seta(236, 238, 318, 172, 'X', 322, 214, 'X', 'externo', 'producao');
+    }
+
+    for (const c of cards) {
+      const p = POS[c.id];
+      if (!p) continue;
+      const sel = c.id === selectedId ? ' sel' : '';
+      const saldo = c.bloqueado ? 'sem solução' : c.saldo === null ? 'sem saldo próprio' : `saldo: ${Fmt.formatNumber(c.saldo, 1)}`;
+      svg += `<g class="no${sel}" data-sector="${c.id}" role="button" tabindex="0" aria-pressed="${c.id === selectedId}" aria-label="${c.nome}, ${saldo}">`;
+      svg += `<rect x="${p.x}" y="${p.y}" width="${NW}" height="${NH}" rx="10"/>`;
+      svg += `<text class="nome" x="${p.x + NW / 2}" y="${p.y + 23}" text-anchor="middle">${c.nome}</text>`;
+      svg += `<text class="saldo" x="${p.x + NW / 2}" y="${p.y + 42}" text-anchor="middle">${saldo}</text>`;
+      svg += '</g>';
+    }
+    return svg + '</svg>';
+  }
+
+  return { diagramSVG };
+});
+
+;
+/* Camada de tela do painel: liga o DOM às funções puras (SFCPanel), ao motor (SFC),
+ * aos gráficos (SFCCharts) e ao diagrama (SFCDiagram). Só roda no navegador. */
+(function () {
+  'use strict';
+  if (typeof document === 'undefined') return;
+
+  const G = typeof globalThis !== 'undefined' ? globalThis : window;
+  const P = G.SFCPanel;
+  const SFC = G.SFC;
+  const Fmt = G.SFCFormat;
+  const Ch = G.SFCCharts;
+  const Dg = G.SFCDiagram;
+  const T = G.SFCTexts;
+  const M = G.SFCMetodologia;
+
+  const app = document.getElementById('app');
+  const MODOS = [
+    { id: 'sim', nome: 'SIM (G&L)' },
+    { id: 'sfcbr', nome: 'SFCBR (aberto)' },
+    { id: 'compare', nome: 'Comparar' },
+  ];
+  const ABAS = [
+    { id: 'modelo', nome: 'Modelo' },
+    { id: 'resultados', nome: 'Resultados' },
+  ];
+  const FOLHAS = { metodologia: 'Metodologia', limites: 'Limites do modelo', brasil: 'Dados reais' };
+
+  let ui = P.makeInitialUI();
+  // link direto: #tab=resultados&mode=compare  (ou #folha=limites)
+  (function lerHash() {
+    const h = new URLSearchParams((location.hash || '').slice(1));
+    if (ABAS.some((a) => a.id === h.get('tab'))) ui.tab = h.get('tab');
+    if (MODOS.some((m) => m.id === h.get('mode'))) ui.mode = h.get('mode');
+    if (FOLHAS[h.get('folha')]) ui.folha = h.get('folha');
+    // #choque=alpha3&tamanho=-50 (só valores válidos)
+    if (P.availableShocks(ui.mode).indexOf(h.get('choque')) >= 0) ui.shock.kind = h.get('choque');
+    const tam = parseInt(h.get('tamanho'), 10);
+    if (tam >= P.SHOCK_RANGE.min && tam <= P.SHOCK_RANGE.max) ui.shock.pct = tam;
+  })();
+  let result = P.runScenario(ui);
+  let matrizAberta = false;
+  let roteiroAtivo = false;
+  let folhaVista = null; // folha que já recebeu o foco
+  let fixoRecolhido = false; // barra de choque fixa recolhida
+
+  const focoModelo = () => (ui.mode === 'sim' ? 'sim' : 'sfcbr');
+  const choqueAtivo = () => ui.shock.enabled && ui.shock.pct !== 0;
+  const $ = (sel) => app.querySelector(sel);
+  const fmt = (v, d) => Fmt.formatNumber(v, d);
+
+  // ---------------------------------------------------------------- avisos
+  function avisosHTML() {
+    let html = '';
+    for (const id of result.models) {
+      const prefixo = result.models.length > 1 ? `<b>${id === 'sim' ? 'SIM' : 'SFCBR'}:</b> ` : '';
+      for (const issue of result.issues[id]) {
+        const texto = T.AVISOS[issue.code] || issue.message;
+        html += `<p class="aviso ${issue.code === 'MU_DIFERENTE' ? 'atencao' : 'erro'}" role="status">${prefixo}${texto}</p>`;
+      }
+    }
+    if (ui.mode === 'sim') html += `<p class="nota">${T.AVISOS.SIM_SEM_EXTERNO}</p>`;
+    return html;
+  }
+
+  // ---------------------------------------------------------------- aba Modelo
+  function controlesHTML() {
+    const modelo = focoModelo();
+    const cards = P.sectorCards(ui, result, modelo, ui.period);
+    const card = cards.find((c) => c.id === ui.sector) || cards[1];
+    let html = `<h3>${card.nome}</h3>`;
+    if (!card.params.length) {
+      html += '<p class="nota">A Produção apenas iguala oferta e demanda: não tem parâmetros próprios.</p>';
+    }
+    for (const p of card.params) {
+      const d = p.key === 'G_d' || p.key === 'F' ? 0 : 2;
+      html += `<div class="ctl"><label for="p-${p.key}">${p.label} <output id="o-${p.key}">${fmt(p.value, d)}</output></label>` +
+        `<input id="p-${p.key}" type="range" data-key="${p.key}" min="${p.min}" max="${p.max}" step="${p.step}" value="${p.value}"></div>`;
+    }
+    if (card.id === 'externo') {
+      html += `<label class="check"><input type="checkbox" data-act="avancado" ${ui.muLinked ? '' : 'checked'}> Separar µx e µm (avançado)</label>`;
+    }
+    if (ui.mode === 'compare') {
+      html += '<p class="nota">No modo Comparar, G e θ valem para os dois modelos; os demais parâmetros alteram só o SFCBR.</p>';
+    }
+    return html;
+  }
+
+  function diagramaHTML() {
+    const cards = P.sectorCards(ui, result, focoModelo(), ui.period);
+    let html = Dg.diagramSVG(cards, ui.sector);
+    if (!cards.some((c) => c.bloqueado)) {
+      const quem = focoModelo() === 'sim' ? 'Governo + setor privado' : 'Governo + setor privado + resto do mundo';
+      html += `<p class="soma">${quem} = <b>${fmt(P.saldosSoma(cards), 1)}</b> (os saldos dos setores sempre somam zero)</p>`;
+    }
+    return html;
+  }
+
+  function rotuloChoque() {
+    const estado = choqueAtivo() ? 'ligado' : 'desligado';
+    return `⚡ ${P.shockLabel(ui)} · ${estado}`;
+  }
+
+  // botão ao lado do seletor: o tipo do choque já aparece no seletor
+  function rotuloBotao() {
+    return `⚡ ${choqueAtivo() ? 'ligado' : 'desligado'}`;
+  }
+
+  const sinal = (pct) => (pct > 0 ? '+' : '') + pct + '%';
+
+  function opcoesChoque() {
+    return P.availableShocks(ui.mode).map((k) =>
+      `<option value="${k}"${ui.shock.kind === k ? ' selected' : ''}>${P.SHOCKS[k].rotulo}</option>`).join('');
+  }
+
+  function matrizHTML() {
+    if (!matrizAberta) return '';
+    const modelo = focoModelo();
+    const sim = result.shocked[modelo];
+    if (!sim) return '';
+    const i = Math.max(1, ui.period - 1);
+    const linha = (k) => {
+      const o = {};
+      Object.keys(sim.vars).forEach((n) => { o[n] = sim.vars[n][k]; });
+      return o;
+    };
+    const m = SFC.transactionMatrix(modelo, linha(i), linha(i - 1));
+    let html = `<div class="tabela"><table><caption>Matriz de transações, período ${i + 1}</caption><thead><tr><th></th>`;
+    html += m.columns.map((c) => `<th>${c}</th>`).join('') + '</tr></thead><tbody>';
+    for (const r of m.rows) {
+      html += `<tr><th scope="row">${r.name}</th>` +
+        r.values.map((v) => `<td>${Math.abs(v) < 1e-9 ? '·' : fmt(v, 1)}</td>`).join('') + '</tr>';
+    }
+    return html + '</tbody></table></div>';
+  }
+
+  function modeloHTML() {
+    return `
+      <div id="diagrama" class="bloco">${diagramaHTML()}</div>
+      <div class="bloco">
+        <label for="periodo">Período em análise <output id="o-periodo">${ui.period}</output></label>
+        <input id="periodo" type="range" min="1" max="60" step="1" value="${ui.period}">
+      </div>
+      <div id="controles" class="bloco">${controlesHTML()}</div>
+      <div class="bloco">
+        <button type="button" class="botao" data-act="matriz" aria-expanded="${matrizAberta}">${matrizAberta ? 'Esconder' : 'Ver'} matriz de fluxos</button>
+        <div id="matriz">${matrizHTML()}</div>
+      </div>`;
+  }
+
+  // ---------------------------------------------------------------- barra de choque fixa
+  function miniHTML() {
+    const m = P.miniChart(ui, result);
+    if (!m.series.length) return '<p class="nota">Ajuste os parâmetros para ver a simulação.</p>';
+    return Ch.lineChartSVG({ width: 360, height: 104, compact: true, series: m.series, xLabel: 'Período', yLabel: 'Y', markX: m.markX, yDomain: m.yDomain }) +
+      legenda(m.series);
+  }
+
+  function fixoHTML() {
+    if (fixoRecolhido) {
+      return `<div class="fixo-card"><div class="fixo-topo"><b>${rotuloChoque()}</b>
+        <button type="button" class="link" data-act="recolher" aria-expanded="false">Expandir ▼</button></div></div>`;
+    }
+    return `<div class="fixo-card">
+      <div class="fixo-linha">
+        <select id="choque-tipo" aria-label="Qual choque?">${opcoesChoque()}</select>
+        <button type="button" class="botao" data-act="choque" aria-pressed="${choqueAtivo()}">${rotuloBotao()}</button>
+        <button type="button" class="link curto" data-act="recolher" aria-expanded="true" aria-label="Recolher a barra de choque">▲</button>
+      </div>
+      <div class="ctl"><label for="pct">Tamanho do choque (período ${ui.shock.start}) <output id="o-pct">${sinal(ui.shock.pct)}</output></label>
+        <input id="pct" type="range" min="${P.SHOCK_RANGE.min}" max="${P.SHOCK_RANGE.max}" step="${P.SHOCK_RANGE.step}" value="${ui.shock.pct}"></div>
+      <div id="mini-y" class="mini">${miniHTML()}</div>
+      ${result.semParametro && result.semParametro.sim && ui.mode === 'compare'
+        ? '<p class="nota">O SIM não tem este parâmetro e fica sem choque: essa é a diferença entre os modelos.</p>' : ''}
+    </div>`;
+  }
+
+  // ---------------------------------------------------------------- aba Resultados
+  function legenda(itens) {
+    return '<ul class="legenda">' + itens.map((s) =>
+      `<li><span class="sw ${s.cls}${s.dash ? ' tracejado' : ''}"></span>${s.name}</li>`).join('') + '</ul>';
+  }
+
+  function graficoY() {
+    const series = [];
+    const multi = result.models.length > 1;
+    for (const id of result.models) {
+      if (!result.shocked[id]) continue;
+      const nome = id === 'sim' ? 'SIM' : 'SFCBR';
+      if (!multi && choqueAtivo()) {
+        series.push({ name: 'Sem choque', values: result.baseline[id].vars.Y, cls: 's-base' });
+      }
+      series.push({ name: multi ? nome : `${nome} (com choque)`, values: result.shocked[id].vars.Y, cls: id === 'sim' ? 's-sim' : 's-sfcbr', dash: multi && id === 'sim' });
+    }
+    return { titulo: 'Produto (Y)', series, yLabel: 'Y' };
+  }
+
+  function graficoSaldos() {
+    const series = [];
+    const sfcbr = result.shocked.sfcbr;
+    const sim = result.shocked.sim;
+    const multi = result.models.length > 1;
+    if (sfcbr) {
+      const b = P.balanceSeries('sfcbr', sfcbr);
+      series.push({ name: multi ? 'Governo (SFCBR)' : 'Governo', values: b.governo, cls: 'c-gov' });
+      series.push({ name: multi ? 'Privado (SFCBR)' : 'Setor privado', values: b.privado, cls: 'c-priv' });
+      series.push({ name: multi ? 'Externo (SFCBR)' : 'Resto do mundo', values: b.externo, cls: 'c-ext' });
+    }
+    if (sim) {
+      const b = P.balanceSeries('sim', sim);
+      series.push({ name: multi ? 'Governo (SIM)' : 'Governo', values: b.governo, cls: 'c-gov', dash: multi });
+      series.push({ name: multi ? 'Privado (SIM)' : 'Setor privado', values: b.privado, cls: 'c-priv', dash: multi });
+    }
+    const nota = multi && sim ? 'No SIM não há Resto do mundo: o saldo externo do SIM não existe neste modelo (economia fechada).' : '';
+    return { titulo: 'Saldos financeiros dos setores (somam zero)', series, yLabel: 'Saldo', nota };
+  }
+
+  function graficoRiqueza() {
+    const series = [];
+    for (const id of result.models) {
+      if (!result.shocked[id]) continue;
+      series.push({ name: id === 'sim' ? 'SIM' : 'SFCBR', values: result.shocked[id].vars.H_h, cls: id === 'sim' ? 's-sim' : 's-sfcbr', dash: result.models.length > 1 && id === 'sim' });
+    }
+    return { titulo: 'Riqueza financeira do setor privado (H)', series, yLabel: 'H' };
+  }
+
+  function graficosHTML() {
+    const mark = choqueAtivo() ? ui.shock.start : undefined;
+    let html = '';
+    for (const g of [graficoY(), graficoSaldos(), graficoRiqueza()]) {
+      html += `<figure class="grafico"><figcaption>${g.titulo}</figcaption>`;
+      if (!g.series.length) html += '<p class="nota">Ajuste os parâmetros para ver a simulação.</p>';
+      else {
+        html += Ch.lineChartSVG({ width: 360, height: 210, series: g.series, xLabel: 'Período', yLabel: g.yLabel, markX: mark });
+        html += legenda(g.series);
+        if (g.nota) html += `<p class="nota">${g.nota}</p>`;
+      }
+      html += '</figure>';
+    }
+    if (mark) html += `<p class="nota">A linha vertical marca o período ${ui.shock.start}, quando entra o choque: ${P.SHOCKS[ui.shock.kind].nome} ${sinal(ui.shock.pct)}.</p>`;
+    return html;
+  }
+
+  // ---------------------------------------------------------------- roteiro guiado
+  function roteiroHTML() {
+    if (!roteiroAtivo) {
+      return `<div class="roteiro"><p><b>Roteiro guiado.</b> ${T.ROTEIRO.length} passos curtos para quem está começando.</p>
+        <button type="button" class="botao" data-act="roteiro-iniciar">Começar o roteiro</button></div>`;
+    }
+    const i = ui.step;
+    const passo = T.ROTEIRO[i];
+    return `<div class="roteiro" aria-live="polite"><p class="passo">Passo ${i + 1} de ${T.ROTEIRO.length}</p>
+      <h3>${passo.titulo}</h3><p>${passo.texto}</p>
+      <div class="nav">
+        <button type="button" class="botao" data-act="roteiro-ant" ${i === 0 ? 'disabled' : ''}>← Anterior</button>
+        <button type="button" class="botao" data-act="roteiro-prox" ${i === T.ROTEIRO.length - 1 ? 'disabled' : ''}>Próximo →</button>
+        <button type="button" class="link" data-act="roteiro-sair">Sair</button>
+      </div></div>`;
+  }
+
+  // ---------------------------------------------------------------- aba Limites
+  function tetoGrafHTML() {
+    const v = P.limitsView(ui, result);
+    if (!v.ceiling.demanda) return '<p class="nota">Ajuste os parâmetros para ver a simulação.</p>';
+    const series = [{ name: v.ceiling.on ? 'Demanda (Y do modelo)' : 'Y do modelo', values: v.ceiling.demanda, cls: 's-sfcbr' }];
+    if (v.ceiling.on) {
+      series.push({ name: 'Produto efetivo (com teto)', values: v.ceiling.effective, cls: 's-sim' });
+      series.push({ name: 'Demanda não atendida', values: v.ceiling.unmet, cls: 'c-gov', dash: true });
+    }
+    let html = '<figure class="grafico"><figcaption>Produto e capacidade</figcaption>';
+    html += Ch.lineChartSVG({ width: 360, height: 210, series, xLabel: 'Período', yLabel: 'Y', markX: choqueAtivo() ? ui.shock.start : undefined });
+    html += legenda(series) + '</figure>';
+    if (v.extensaoRotulo) html += `<p class="aviso atencao">${v.extensaoRotulo}</p>`;
+    return html;
+  }
+
+  function limitesHTML() {
+    const v = P.limitsView(ui, result);
+    return `
+      <div class="bloco"><h3>O que este resultado assume</h3>
+        <ul class="lista">${v.hipoteses.map((h) => `<li>${h}</li>`).join('')}</ul>
+        <p class="nota">Se alguma dessas hipóteses não vale na economia real, o resultado muda.</p></div>
+      <div class="bloco"><h3>E se a economia estiver no limite?</h3>
+        <label class="check"><input type="checkbox" data-act="teto" ${ui.ceiling.on ? 'checked' : ''}> Ligar um teto de capacidade</label>
+        <div class="ctl"><label for="teto-pct">Teto: % do produto do baseline <output id="o-teto">${v.ceiling.pct}%</output></label>
+          <input id="teto-pct" type="range" min="100" max="200" step="5" value="${v.ceiling.pct}"></div>
+        <p class="nota">${T.AVISOS.EXTENSAO_DIDATICA} O modelo não tem preços; o gasto que passa do teto aparece como demanda não atendida.</p>
+        <div id="teto-graf">${tetoGrafHTML()}</div></div>
+      <div class="bloco"><h3>O que falta</h3><p class="aviso atencao">${v.falta}</p></div>`;
+  }
+
+  // ---------------------------------------------------------------- folha "Dados reais"
+  const NOME_SETOR = { governo: 'Governo', privado: 'Setor privado', externo: 'Resto do mundo' };
+
+  function brasilHTML() {
+    const v = P.dadosReaisView();
+    const real = [
+      { name: 'Governo', values: v.series.governo, cls: 'c-gov' },
+      { name: 'Setor privado', values: v.series.privado, cls: 'c-priv' },
+      { name: 'Resto do mundo', values: v.series.externo, cls: 'c-ext' },
+    ];
+    const ini = v.periodos[0];
+    const fim = v.periodos[v.periodos.length - 1];
+    let html = `<figure class="grafico"><figcaption>Dados reais do Brasil, ${ini} a ${fim} (% do PIB)</figcaption>` +
+      Ch.lineChartSVG({ width: 360, height: 220, series: real, xLabel: 'Ano', yLabel: '% do PIB', yDomain: v.yDomain, xTicks: v.ticks }) +
+      legenda(real) + '</figure>';
+    const linhas = v.resumo.map((r) =>
+      `<tr><th scope="row">${NOME_SETOR[r.setor]}</th><td>${fmt(r.media, 1)}</td><td>${fmt(r.min, 1)} (${r.minPeriodo})</td><td>${fmt(r.max, 1)} (${r.maxPeriodo})</td></tr>`).join('');
+    const priv = v.resumo.find((r) => r.setor === 'privado');
+    const gov = v.resumo.find((r) => r.setor === 'governo');
+    html += `<div class="bloco"><h3>O que os dados mostram</h3>
+      <div class="tabela"><table><caption>Saldos em % do PIB, ${ini} a ${fim}</caption>
+        <thead><tr><th></th><th>Média</th><th>Mínimo</th><th>Máximo</th></tr></thead><tbody>${linhas}</tbody></table></div>
+      <ul class="lista">
+        <li>O saldo do setor privado <b>não é estável</b>: foi de ${fmt(priv.min, 1)}% a ${fmt(priv.max, 1)}% do PIB, com média de ${fmt(priv.media, 1)}%.</li>
+        <li>${gov.max < 0 ? 'O governo ficou no vermelho em todos os trimestres, e o pior momento foi ' + gov.minPeriodo + ' (' + fmt(gov.min, 1) + '%).' : 'O governo teve saldos negativos e positivos ao longo da série.'}</li>
+        <li>Os três saldos <b>somam zero</b> em todo trimestre. É uma identidade contábil: o saldo do setor privado é calculado como resíduo, −(governo + resto do mundo).</li>
+      </ul>
+      <p class="nota">O modelo didático (SIM e SFCBR) usa parâmetros ilustrativos, não estimados com estes dados. Ele mostra a lógica contábil, com saldos que somam zero e voltam ao equilíbrio, mas não reproduz nem prevê a história do Brasil. Por isso o painel não compara os dois.</p></div>`;
+    html += `<p class="aviso atencao">${v.aviso}</p>`;
+    html += '<p class="nota">Fonte: BCB/SGS (NFSP sem desvalorização cambial e transações correntes), acumulado em 12 meses.</p>';
+    return html;
+  }
+
+  // ---------------------------------------------------------------- tabela "onde os dois modelos diferem"
+  function tabelaDifHTML() {
+    const t = P.comparacaoTabela(ui, result, ui.period);
+    if (!t) return '';
+    const val = (x) => (x === null ? '—' : fmt(x, 1));
+    const dif = (l) => {
+      if (l.sim === null || l.sfcbr === null) return '—';
+      const d = l.sfcbr - l.sim;
+      const txt = fmt(d, 1);
+      return (d > 0 && txt !== '0,0' ? '+' : '') + txt;
+    };
+    let html = `<div class="tabela"><table><caption>Valores no período ${t.periodo}</caption>
+      <thead><tr><th></th><th>SIM</th><th>SFCBR</th><th>Dif.</th></tr></thead><tbody>`;
+    t.linhas.forEach((l) => {
+      html += `<tr><th scope="row">${l.nome}</th><td>${val(l.sim)}</td><td>${val(l.sfcbr)}</td><td>${dif(l)}</td></tr>`;
+    });
+    return html + `</tbody></table></div>
+      <p class="nota">O produto é parecido porque, nos dois modelos, Y = G/θ no longo prazo. As diferenças estão na composição da demanda (investimento e comércio exterior só existem no SFCBR) e na riqueza. "—" quer dizer que o SIM não tem aquela variável.</p>`;
+  }
+
+  function resultadosHTML() {
+    const card = ui.mode === 'compare'
+      ? `<div class="bloco" id="comparacao"><h3>Onde os dois modelos diferem</h3>
+          <div class="ctl"><label for="periodo">Período em análise <output id="o-periodo">${ui.period}</output></label>
+            <input id="periodo" type="range" min="1" max="60" step="1" value="${ui.period}"></div>
+          <div id="tabela-dif">${tabelaDifHTML()}</div></div>`
+      : '';
+    return `<div id="graficos">${graficosHTML()}</div>${card}`;
+  }
+
+  function abaHTML() {
+    return ui.tab === 'resultados' ? resultadosHTML() : modeloHTML();
+  }
+
+  // ---------------------------------------------------------------- folha "Metodologia"
+  const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  function equacoesHTML(s) {
+    let html = '';
+    s.grupos.forEach((g) => {
+      html += `<h4>${g.grupo}</h4><ul class="eqs">` +
+        g.linhas.map((l) => `<li><code>${esc(l.eq)}</code><span class="expl">${l.texto}</span></li>`).join('') + '</ul>';
+    });
+    const itens = Object.keys(s.legenda).map((v) => `<dt>${esc(v)}</dt> <dd>${s.legenda[v]}</dd>`).join('');
+    return html + `<details class="legenda-vars"><summary>Legenda das variáveis</summary><dl>${itens}</dl></details>`;
+  }
+
+  function metodologiaHTML() {
+    const ids = M.modelosDoModo(ui.mode);
+    let corpo = '';
+    if (ids.length > 1) {
+      corpo += '<section class="metodo"><h3>O que muda do SIM para o SFCBR</h3><ul class="lista">' +
+        M.DIFERENCAS.map((d) => `<li>${d}</li>`).join('') + '</ul></section>';
+    }
+    ids.forEach((id, k) => {
+      if (ids.length > 1) corpo += `<h2 class="metodo-modelo">${M.MODELOS[id].nome}</h2>`;
+      M.secoes(id).forEach((s) => {
+        // no modo Comparar, a ideia geral e as referências aparecem uma vez só
+        if (k > 0 && (s.id === 'ideia' || s.id === 'referencias')) return;
+        corpo += `<section class="metodo"><h3>${s.titulo}</h3>` + s.paragrafos.map((p) => `<p>${p}</p>`).join('');
+        if (s.grupos) corpo += equacoesHTML(s);
+        corpo += '</section>';
+      });
+    });
+    return corpo;
+  }
+
+  function folhaHTML() {
+    const corpo = ui.folha === 'limites' ? limitesHTML() : ui.folha === 'brasil' ? brasilHTML() : metodologiaHTML();
+    return `<div class="folha" role="dialog" aria-modal="true" aria-labelledby="folha-titulo">
+      <div class="folha-topo"><h2 id="folha-titulo">${FOLHAS[ui.folha]}</h2>
+        <button type="button" class="botao" data-act="fechar-folha">Fechar ✕</button></div>
+      <div class="folha-corpo">${corpo}</div></div>`;
+  }
+
+  function abrirFolha(nome) {
+    ui = Object.assign({}, ui, { folha: nome });
+    render();
+  }
+
+  function fecharFolha() {
+    const nome = ui.folha;
+    ui = Object.assign({}, ui, { folha: null });
+    render();
+    const abrir = app.querySelector(`[data-folha="${nome}"]`);
+    if (abrir) abrir.focus();
+  }
+
+  // ---------------------------------------------------------------- estrutura e atualização
+  function render() {
+    const modos = MODOS.map((m) =>
+      `<button type="button" class="seg${ui.mode === m.id ? ' on' : ''}" data-mode="${m.id}" aria-pressed="${ui.mode === m.id}">${m.nome}</button>`).join('');
+    const abas = ABAS.map((a) =>
+      `<button type="button" role="tab" class="aba${ui.tab === a.id ? ' on' : ''}" data-tab="${a.id}" aria-selected="${ui.tab === a.id}">${a.nome}</button>`).join('');
+    const botoes = Object.keys(FOLHAS).map((k) =>
+      `<button type="button" class="botao pequeno" data-folha="${k}">${k === 'metodologia' ? 'ℹ ' : ''}${FOLHAS[k]}</button>`).join('');
+    app.innerHTML = `
+      <div class="barra">${botoes}</div>
+      <div id="choque-fixo" class="fixo">${fixoHTML()}</div>
+      ${roteiroHTML()}
+      <div class="modos" role="group" aria-label="Modelo">${modos}</div>
+      <div class="abas" role="tablist">${abas}</div>
+      <div id="avisos">${avisosHTML()}</div>
+      <div id="aba">${abaHTML()}</div>
+      ${ui.folha ? folhaHTML() : ''}`;
+    document.body.classList.toggle('sem-rolagem', !!ui.folha);
+    if (ui.folha && folhaVista !== ui.folha) {
+      const fechar = app.querySelector('[data-act="fechar-folha"]');
+      if (fechar) fechar.focus();
+    }
+    folhaVista = ui.folha;
+  }
+
+  // chamada a cada mudança de parâmetro: não recria os controles (para não perder o arrasto)
+  function live() {
+    result = P.runScenario(ui);
+    $('#avisos').innerHTML = avisosHTML();
+    const mini = $('#mini-y');
+    if (mini) mini.innerHTML = miniHTML();
+    if (ui.folha === 'limites') {
+      $('#teto-graf').innerHTML = tetoGrafHTML();
+    } else if (ui.tab === 'modelo') {
+      $('#diagrama').innerHTML = diagramaHTML();
+      $('#matriz').innerHTML = matrizHTML();
+    } else {
+      $('#graficos').innerHTML = graficosHTML();
+      const tab = $('#tabela-dif');
+      if (tab) tab.innerHTML = tabelaDifHTML();
+    }
+  }
+
+  function structural(nova) {
+    ui = nova;
+    result = P.runScenario(ui);
+    render();
+  }
+
+  app.addEventListener('input', (e) => {
+    const el = e.target;
+    if (el.matches('input[data-key]')) {
+      const v = parseFloat(el.value);
+      ui = P.setParamForMode(ui, el.dataset.key, v);
+      const out = document.getElementById('o-' + el.dataset.key);
+      if (out) out.textContent = fmt(v, el.dataset.key === 'G_d' || el.dataset.key === 'F' ? 0 : 2);
+      live();
+    } else if (el.id === 'periodo') {
+      ui = Object.assign({}, ui, { period: parseInt(el.value, 10) });
+      document.getElementById('o-periodo').textContent = ui.period;
+      live();
+    } else if (el.id === 'teto-pct') {
+      ui = Object.assign({}, ui, { ceiling: Object.assign({}, ui.ceiling, { pct: parseInt(el.value, 10) }) });
+      document.getElementById('o-teto').textContent = ui.ceiling.pct + '%';
+      live();
+    } else if (el.id === 'pct') {
+      ui = Object.assign({}, ui, { shock: Object.assign({}, ui.shock, { pct: parseInt(el.value, 10) }) });
+      document.getElementById('o-pct').textContent = sinal(ui.shock.pct);
+      const botao = app.querySelector('[data-act="choque"]');
+      if (botao) {
+        botao.textContent = rotuloBotao();
+        botao.setAttribute('aria-pressed', String(choqueAtivo()));
+      }
+      live();
+    }
+  });
+
+  app.addEventListener('change', (e) => {
+    if (e.target.id === 'choque-tipo') {
+      structural(Object.assign({}, ui, { shock: Object.assign({}, ui.shock, { kind: e.target.value }) }));
+    } else if (e.target.matches('[data-act="avancado"]')) {
+      structural(P.setMuLinked(ui, !e.target.checked));
+    } else if (e.target.matches('[data-act="teto"]')) {
+      ui = Object.assign({}, ui, { ceiling: Object.assign({}, ui.ceiling, { on: e.target.checked }) });
+      $('#teto-graf').innerHTML = tetoGrafHTML();
+    }
+  });
+
+  function ativarNo(alvo) {
+    const no = alvo.closest('[data-sector]');
+    if (no) structural(Object.assign({}, ui, { sector: no.dataset.sector }));
+  }
+
+  app.addEventListener('click', (e) => {
+    const t = e.target;
+    const modo = t.closest('[data-mode]');
+    const aba = t.closest('[data-tab]');
+    const acao = t.closest('[data-act]');
+    const folha = t.closest('[data-folha]');
+    if (folha) abrirFolha(folha.dataset.folha);
+    else if (modo) structural(P.setMode(ui, modo.dataset.mode));
+    else if (aba) structural(Object.assign({}, ui, { tab: aba.dataset.tab }));
+    else if (acao && acao.dataset.act === 'fechar-folha') fecharFolha();
+    else if (acao && acao.dataset.act === 'recolher') { fixoRecolhido = !fixoRecolhido; render(); }
+    else if (acao && acao.dataset.act === 'roteiro-iniciar') { roteiroAtivo = true; structural(T.applyStep(ui, 0)); }
+    else if (acao && acao.dataset.act === 'roteiro-prox') structural(T.applyStep(ui, Math.min(ui.step + 1, T.ROTEIRO.length - 1)));
+    else if (acao && acao.dataset.act === 'roteiro-ant') structural(T.applyStep(ui, Math.max(ui.step - 1, 0)));
+    else if (acao && acao.dataset.act === 'roteiro-sair') { roteiroAtivo = false; render(); }
+    else if (acao && acao.dataset.act === 'choque') {
+      structural(Object.assign({}, ui, { shock: Object.assign({}, ui.shock, { enabled: !ui.shock.enabled }) }));
+    } else if (acao && acao.dataset.act === 'matriz') {
+      matrizAberta = !matrizAberta;
+      render();
+    } else ativarNo(t);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && ui.folha) fecharFolha();
+  });
+
+  app.addEventListener('keydown', (e) => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-sector]')) {
+      e.preventDefault();
+      ativarNo(e.target);
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
