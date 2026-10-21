@@ -234,6 +234,46 @@ code { display: inline-block; max-width: 100%; font: 0.85rem/1.4 ui-monospace, M
 
 .fixo-linha .link.curto { flex: 0 0 auto; min-width: 36px; padding: 0 6px; text-decoration: none; font-size: 1rem; }
 .mini .nota { display: none; }
+
+/* abertura com os saldos reais */
+.abertura { background: var(--surface); border: 1px solid var(--border); border-top: 4px solid var(--accent); border-radius: var(--radius); padding: 14px 14px 10px; margin: 4px 0 12px; }
+.abertura .selo { margin: 0 0 4px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.abertura h2 { margin: 0 0 8px; font-size: 1.45rem; line-height: 1.2; }
+.abertura p { margin: 0 0 10px; font-size: 0.95rem; }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 10px 0 6px; }
+.kpi { display: flex; flex-direction: column; gap: 2px; padding: 8px 8px 8px 10px; background: var(--bg); border: 1px solid var(--border); border-left: 5px solid var(--base); border-radius: var(--radius); }
+.kpi.k-governo { border-left-color: var(--gov); }
+.kpi.k-privado { border-left-color: var(--priv); }
+.kpi.k-externo { border-left-color: var(--ext); }
+.kpi-nome { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+.kpi-valor { font-size: 1.45rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.kpi-valor small { display: block; font-size: 0.7rem; font-weight: 500; color: var(--muted); }
+.kpi-nota { font-size: 0.72rem; color: var(--muted); }
+
+/* mapa da jornada (roteiro) */
+.mapa { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 8px 0 10px; }
+.etapa { display: flex; flex-direction: column; gap: 2px; text-align: left; min-height: 64px; padding: 8px 10px; background: var(--bg); color: var(--text); font: inherit; border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; }
+.etapa.feita { border-color: var(--priv); }
+.etapa-n { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); }
+.etapa.feita .etapa-n { color: var(--priv); }
+.etapa-t { font-size: 0.86rem; font-weight: 600; line-height: 1.25; }
+.pontos { display: flex; gap: 6px; margin: 0 0 6px; }
+.ponto { flex: 1 1 0; min-width: 0; height: 22px; padding: 0; border: 0; background: transparent; cursor: pointer; position: relative; }
+.ponto::after { content: ""; position: absolute; left: 0; right: 0; top: 9px; height: 5px; border-radius: 3px; background: var(--border); }
+.ponto.feita::after { background: var(--priv); }
+.ponto.atual::after { background: var(--accent); }
+
+/* diagrama: cada setor com a sua cor, e fluxos em movimento */
+.no[data-sector="governo"] rect { stroke: var(--gov); }
+.no[data-sector="privado"] rect { stroke: var(--priv); }
+.no[data-sector="externo"] rect { stroke: var(--ext); }
+.no[data-sector="governo"] .nome { fill: var(--gov); }
+.no[data-sector="privado"] .nome { fill: var(--priv); }
+.no[data-sector="externo"] .nome { fill: var(--ext); }
+.no.sel rect { stroke-width: 3.5; }
+.seta { stroke-dasharray: 5 4; animation: fluxo 1.4s linear infinite; }
+@keyframes fluxo { to { stroke-dashoffset: -9; } }
+@media (prefers-reduced-motion: reduce) { .seta { animation: none; stroke-dasharray: none; } }
 </style>
 </head>
 <body>
@@ -631,7 +671,13 @@ window.addEventListener('error', function (e) {
       'Este modelo não tem bancos nem crédito. No artigo, o crédito tem um comportamento difícil de explicar no Brasil; os módulos do repositório servem para incluí-lo.',
   };
 
-  return { ROTEIRO, applyStep, HIPOTESES, AVISOS };
+  const ABERTURA = {
+    pergunta: 'Quando o governo fica no vermelho, quem fica no azul?',
+    texto:
+      'Na contabilidade de uma economia, o que um setor gasta a mais é renda de outro. Por isso os saldos financeiros do governo, do setor privado e do resto do mundo sempre somam zero. Estes são os números reais do Brasil. Nos modelos abaixo, você mexe nessas peças e vê o que acontece.',
+  };
+
+  return { ROTEIRO, ABERTURA, applyStep, HIPOTESES, AVISOS };
 });
 
 ;
@@ -1209,8 +1255,19 @@ window.addEventListener('error', function (e) {
     };
   }
 
+  // Abertura do painel: o último saldo real de cada setor, em palavras
+  function aberturaView(reais) {
+    const v = dadosReaisView(reais);
+    const ult = v.periodos.length - 1;
+    const cartoes = v.resumo.map((r) => {
+      const valor = v.series[r.setor][ult];
+      return { setor: r.setor, nome: NOMES_SETOR[r.setor] || r.setor, valor, media: r.media, situacao: valor < 0 ? 'déficit' : 'superávit' };
+    });
+    return { periodo: v.periodos[ult], cartoes, pergunta: Texts.ABERTURA.pergunta, texto: Texts.ABERTURA.texto };
+  }
+
   return {
-    PARAM_RANGES, NOMES_SETOR, SHOCKS, SHOCK_RANGE, availableShocks, shockLabel,
+    aberturaView, PARAM_RANGES, NOMES_SETOR, SHOCKS, SHOCK_RANGE, availableShocks, shockLabel,
     makeInitialUI, setParam, setParamForMode, setMode, setMuLinked,
     runScenario, sectorCards, saldosSoma, comparacaoTabela, anoTicks, miniChart, miniDomain, balanceSeries, balancesPctOfY, limitsView, dadosReaisView,
   };
@@ -1402,6 +1459,15 @@ window.addEventListener('error', function (e) {
   let roteiroAtivo = false;
   let folhaVista = null; // folha que já recebeu o foco
   let fixoRecolhido = false; // barra de choque fixa recolhida
+  // passos do roteiro já vistos (lembrados no navegador; sem armazenamento, só vale nesta visita)
+  const CHAVE_VISTOS = 'sfc-roteiro-vistos';
+  let vistos = [];
+  try { vistos = JSON.parse(localStorage.getItem(CHAVE_VISTOS)) || []; } catch (e) { vistos = []; }
+  if (!Array.isArray(vistos)) vistos = [];
+  function marcarVisto(i) {
+    if (vistos.indexOf(i) < 0) vistos = vistos.concat(i);
+    try { localStorage.setItem(CHAVE_VISTOS, JSON.stringify(vistos)); } catch (e) { /* sem armazenamento: tudo bem */ }
+  }
 
   const focoModelo = () => (ui.mode === 'sim' ? 'sim' : 'sfcbr');
   const choqueAtivo = () => ui.shock.enabled && ui.shock.pct !== 0;
@@ -1600,20 +1666,47 @@ window.addEventListener('error', function (e) {
     return html;
   }
 
-  // ---------------------------------------------------------------- roteiro guiado
+  // ---------------------------------------------------------------- abertura
+  function aberturaHTML() {
+    const v = P.aberturaView();
+    const cartoes = v.cartoes.map((c) =>
+      `<div class="kpi k-${c.setor}"><span class="kpi-nome">${c.nome}</span>
+        <span class="kpi-valor">${fmt(c.valor, 1)}<small>% do PIB</small></span>
+        <span class="kpi-nota">${c.situacao} · média ${fmt(c.media, 1)}%</span></div>`).join('');
+    return `<section class="abertura" aria-labelledby="abertura-titulo">
+      <p class="selo">Saldos financeiros dos setores · Brasil</p>
+      <h2 id="abertura-titulo">${v.pergunta}</h2>
+      <p>${v.texto}</p>
+      <div class="kpis">${cartoes}</div>
+      <p class="nota">Último trimestre da série (${v.periodo}), em % do PIB, acumulado em 12 meses. Soma dos três: zero. Fonte: BCB/SGS.</p>
+    </section>`;
+  }
+
+  // ---------------------------------------------------------------- roteiro guiado (mapa da jornada)
+  function mapaHTML() {
+    const cards = T.ROTEIRO.map((p, k) =>
+      `<button type="button" class="etapa${vistos.indexOf(k) >= 0 ? ' feita' : ''}" data-act="roteiro-ir" data-passo="${k}">
+        <span class="etapa-n">Passo ${k + 1}${vistos.indexOf(k) >= 0 ? ' ✓' : ''}</span>
+        <span class="etapa-t">${p.titulo}</span></button>`).join('');
+    const feitos = T.ROTEIRO.filter((p, k) => vistos.indexOf(k) >= 0).length;
+    return `<div class="roteiro"><h3>Roteiro: ${T.ROTEIRO.length} passos curtos</h3>
+      <p class="nota">Para quem está começando. Toque em um passo ou comece pelo primeiro${feitos ? ` (${feitos} de ${T.ROTEIRO.length} vistos)` : ''}.</p>
+      <div class="mapa">${cards}</div>
+      <button type="button" class="botao" data-act="roteiro-iniciar">${feitos ? 'Recomeçar do passo 1' : 'Começar o roteiro'}</button></div>`;
+  }
+
   function roteiroHTML() {
-    if (!roteiroAtivo) {
-      return `<div class="roteiro"><p><b>Roteiro guiado.</b> ${T.ROTEIRO.length} passos curtos para quem está começando.</p>
-        <button type="button" class="botao" data-act="roteiro-iniciar">Começar o roteiro</button></div>`;
-    }
+    if (!roteiroAtivo) return mapaHTML();
     const i = ui.step;
     const passo = T.ROTEIRO[i];
-    return `<div class="roteiro" aria-live="polite"><p class="passo">Passo ${i + 1} de ${T.ROTEIRO.length}</p>
+    const pontos = T.ROTEIRO.map((p, k) =>
+      `<button type="button" class="ponto${k === i ? ' atual' : ''}${vistos.indexOf(k) >= 0 ? ' feita' : ''}" data-act="roteiro-ir" data-passo="${k}" aria-label="Passo ${k + 1}: ${p.titulo}"${k === i ? ' aria-current="step"' : ''}></button>`).join('');
+    return `<div class="roteiro" aria-live="polite"><div class="pontos">${pontos}</div><p class="passo">Passo ${i + 1} de ${T.ROTEIRO.length}</p>
       <h3>${passo.titulo}</h3><p>${passo.texto}</p>
       <div class="nav">
         <button type="button" class="botao" data-act="roteiro-ant" ${i === 0 ? 'disabled' : ''}>← Anterior</button>
         <button type="button" class="botao" data-act="roteiro-prox" ${i === T.ROTEIRO.length - 1 ? 'disabled' : ''}>Próximo →</button>
-        <button type="button" class="link" data-act="roteiro-sair">Sair</button>
+        <button type="button" class="link" data-act="roteiro-sair">Ver o mapa</button>
       </div></div>`;
   }
 
@@ -1778,6 +1871,7 @@ window.addEventListener('error', function (e) {
     const botoes = Object.keys(FOLHAS).map((k) =>
       `<button type="button" class="botao pequeno" data-folha="${k}">${k === 'metodologia' ? 'ℹ ' : ''}${FOLHAS[k]}</button>`).join('');
     app.innerHTML = `
+      ${aberturaHTML()}
       <div class="barra">${botoes}</div>
       <div id="choque-fixo" class="fixo">${fixoHTML()}</div>
       ${roteiroHTML()}
@@ -1862,6 +1956,12 @@ window.addEventListener('error', function (e) {
     if (no) structural(Object.assign({}, ui, { sector: no.dataset.sector }));
   }
 
+  function irParaPasso(k) {
+    roteiroAtivo = true;
+    marcarVisto(k);
+    structural(T.applyStep(ui, k));
+  }
+
   app.addEventListener('click', (e) => {
     const t = e.target;
     const modo = t.closest('[data-mode]');
@@ -1873,9 +1973,10 @@ window.addEventListener('error', function (e) {
     else if (aba) structural(Object.assign({}, ui, { tab: aba.dataset.tab }));
     else if (acao && acao.dataset.act === 'fechar-folha') fecharFolha();
     else if (acao && acao.dataset.act === 'recolher') { fixoRecolhido = !fixoRecolhido; render(); }
-    else if (acao && acao.dataset.act === 'roteiro-iniciar') { roteiroAtivo = true; structural(T.applyStep(ui, 0)); }
-    else if (acao && acao.dataset.act === 'roteiro-prox') structural(T.applyStep(ui, Math.min(ui.step + 1, T.ROTEIRO.length - 1)));
-    else if (acao && acao.dataset.act === 'roteiro-ant') structural(T.applyStep(ui, Math.max(ui.step - 1, 0)));
+    else if (acao && acao.dataset.act === 'roteiro-iniciar') irParaPasso(0);
+    else if (acao && acao.dataset.act === 'roteiro-ir') irParaPasso(parseInt(acao.dataset.passo, 10));
+    else if (acao && acao.dataset.act === 'roteiro-prox') irParaPasso(Math.min(ui.step + 1, T.ROTEIRO.length - 1));
+    else if (acao && acao.dataset.act === 'roteiro-ant') irParaPasso(Math.max(ui.step - 1, 0));
     else if (acao && acao.dataset.act === 'roteiro-sair') { roteiroAtivo = false; render(); }
     else if (acao && acao.dataset.act === 'choque') {
       structural(Object.assign({}, ui, { shock: Object.assign({}, ui.shock, { enabled: !ui.shock.enabled }) }));
